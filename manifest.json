@@ -1,0 +1,26 @@
+{
+  "widget": {
+    "name": "widget.name",
+    "description": "widget.description",
+    "short_description": "widget.short_description",
+    "code": "alarmcrm_free_pack",
+    "secret_key": "ea57cc8581478bdc81deec2ba2c8a29cd3c001fcf1febc2f84f5b124d3c9168e",
+    "version": "1.0.1",
+    "interface_version": 2,
+    "init_once": true,
+    "locale": [
+      "ru"
+    ],
+    "installation": true
+  },
+  "locations": [
+    "everywhere"
+  ],
+  "settings": {
+    "users":{
+      "name": "settings.users",
+      "type": "users",
+      "required": true
+    }
+  }
+}

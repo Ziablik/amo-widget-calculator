@@ -1,0 +1,10 @@
+{
+    "widget":{
+        "name":"Tempalte",
+        "short_description":"Tempalte for widgets",
+        "description":"Tempalte for widgets"
+    },
+    "settings":{
+        "test": "Test"
+    }
+}
