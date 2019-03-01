@@ -5,9 +5,9 @@
     "short_description": "widget.short_description",
     "code": "lastochka",
     "secret_key": "f62941d16d8f11a0349e68e9af28cab513dc8b22353cb9b5d7660c8176cd474f",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "interface_version": 2,
-    "init_once": false,
+    "init_once": true,
     "locale":[
       "ru"
     ],
