@@ -74,7 +74,7 @@ define(['jquery'], function ($) {
 
         this.getFieldsNames = function () {
             var fieldsNames = [];
-            fieldsNames.push({option: 'Бюджет', id: 'sale'});
+            fieldsNames.push({option: 'Бюджет', id: 'lead_card_budget'});
             //Получаю все имена и id всех кастомных полей, а также поля бюджет, и заношу их в объект fieldsNames
             //Берет только поля типа число
             $.get('https://new5c608a588697c.amocrm.ru/api/v2/account?with=custom_fields', function (data) {
@@ -116,7 +116,8 @@ define(['jquery'], function ($) {
                     if(self.validateFormul($('#formulField').val(), fieldsNames, $('.control--select--button-inner').text())){
                         alert('Формула создана');
                         $('#formulField').css('border', '1px solid rgb(0,255,0)');
-                        self.set_settings($('.control--select--button span').text(), $('#formulField').val())
+                        console.log($('.control--select--button').attr('data-value'));
+                        self.set_settings($('.control--select--button').attr('data-value'), self.convertFormulToID($('#formulField').val()))
                     }
                     else{
                         alert("Не правильное оформление");
@@ -188,33 +189,63 @@ define(['jquery'], function ($) {
             }
         };
 
-        //Формирование формулы
-        //Замена имен полей в формуле на id полей а затем замена на value поля по id
-        this.convertFormul = function () {
-            var formuls = self.get_settings(),
-                formul,
-                arrFormuls = [],
-                arrFieldsID = [];
-            delete formuls['login'];
-            for(formul in formuls){
-                var arrFormul = self.parseFormul(formuls[formul]);
-                for(i=0; i<arrFormul.length; i++){
-                    if(arrFormul[i].length > 1){
-                        arrFormul[i] = self.convertFieldName(arrFormul[i]);
-                        arrFieldsID.push(arrFormul[i]);
-                        if(arrFormul[i] == 'lead_card_budget'){
-                            arrFormul[i] = $('#'+arrFormul[i]).val().replace(/\s/g, '');
-                        }
-                        else{
-                            arrFormul[i] = $('[name="CFV['+ arrFormul[i] +']"]').val();
-                        }
-                    }
+        //Замена названий полей в формуле на id полей
+        this.convertFormulToID = function (formulByField) {
+            // var formuls = self.get_settings(),
+            //     formul,
+            //     arrFormuls = [],
+            //     arrFieldsID = [];
+            // delete formuls['login'];
+            // for(formul in formuls){
+            //     var arrFormul = self.parseFormul(formuls[formul]);
+            //     for(i=0; i<arrFormul.length; i++){
+            //         if(arrFormul[i].length > 1){
+            //             arrFormul[i] = self.convertFieldName(arrFormul[i]);
+            //             arrFieldsID.push(arrFormul[i]);
+            //             if(arrFormul[i] == 'lead_card_budget'){
+            //                 arrFormul[i] = $('#'+arrFormul[i]).val().replace(/\s/g, '');
+            //             }
+            //             else{
+            //                 arrFormul[i] = $('[name="CFV['+ arrFormul[i] +']"]').val();
+            //             }
+            //         }
+            //     }
+            //     arrFormul.unshift(self.convertFieldName(formul));
+            //     arrFormuls.push(arrFormul);
+            // }
+            // self.fieldsAction(arrFieldsID);
+            console.log(formulByField);
+            var arrFormul = self.parseFormul(formulByField),
+                formul = '';
+
+            for(i=0; i<arrFormul.length; i++){
+                if(arrFormul[i].length > 1){
+                    formul = formul + '{' + self.convertNameToID(arrFormul[i]) + '}';
                 }
-                arrFormul.unshift(self.convertFieldName(formul));
-                arrFormuls.push(arrFormul);
+                else{
+                    formul = formul + arrFormul[i];
+                }
             }
-            self.fieldsAction(arrFieldsID);
-            return arrFormuls;
+
+            return formul;
+        };
+
+        //Замена id полей в формуле на названия полей
+        this.convertFormulToName = function (formulBySettings) {
+            var arrFormul = self.parseFormul(formulBySettings),
+                formul = '';
+            console.log(arrFormul);
+            for(i=0; i<arrFormul.length; i++){
+                if(arrFormul[i].length > 1){
+                    formul = formulself.convertIDToName(arrFormul[i]);
+                }
+                else{
+                    formul = formul + arrFormul[i];
+                }
+            }
+
+            console.log(formul);
+            return formul;
         };
 
         //Создает обработчик для полей, которые используются в формуле
@@ -234,7 +265,7 @@ define(['jquery'], function ($) {
         };
 
         //Конвертировать имя поля на id поля
-        this.convertFieldName = function (fieldName) {
+        this.convertNameToID = function (fieldName) {
             // console.log(fieldName);
             var fields,
                 field;
@@ -254,6 +285,11 @@ define(['jquery'], function ($) {
                     return field;
                 }
             }
+        };
+
+        //Конвертировать id поля на имя поля
+        this.convertIDToName = function (fieldID) {
+            return AMOCRM.constant("account").cf[fieldID].NAME;
         };
 
         //Валидация формулы, mainField не должен повторяться в тексте формулы, все поля используемые в формуле должны существовать
@@ -315,6 +351,12 @@ define(['jquery'], function ($) {
             return false;
         };
 
+
+        //Функция парсит формулу в массив типа ['(', '421352', '+', '214643', ')', '*', '2']
+        this.parseFormulId = function (formul) {
+            console.log(formul);
+        };
+
         /**
          * @type {{render: (function(): boolean), init: (function(): boolean), bind_actions: (function(): boolean), settings: (function(): boolean), onSave: (function(): boolean), destroy: PandoraLoaderWidget.callbacks.destroy}}
          */
@@ -345,9 +387,9 @@ define(['jquery'], function ($) {
             },
             advancedSettings: function() {
                 console.log('advanced');
-                console.log('Test');
                 self.getFieldsNames();
                 self.getFormuls();
+                self.parseFormulId('({475741}+{475743})*2');
 
                 return true;
             },
