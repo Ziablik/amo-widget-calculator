@@ -1,10 +1,13 @@
 {
     "widget":{
-        "name":"Tempalte",
-        "short_description":"Tempalte for widgets",
-        "description":"Tempalte for widgets"
+        "name":"Калькулятор",
+        "short_description":"Создание формул",
+        "description":"Виджет позволять создавать математические формулы с кастомными полями, после создания которых будет произволится автомаический расчет в карточке сделок"
     },
     "settings":{
-        "test": "Test"
+        "login":"Логин"
+    },
+    "advanced":{
+        "title": "Формулы"
     }
 }

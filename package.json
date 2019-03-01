@@ -1,7 +1,7 @@
 {
-  "name": "template_for_widgets",
+  "name": "amo-widget-calculator",
   "version": "0.0.1",
-  "description": "its just template, change this",
+  "description": "Formul calculate for leads",
   "main": "gulpfile.js",
   "scripts": {
     "watch": "yarn gulp"

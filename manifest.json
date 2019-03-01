@@ -1,26 +1,35 @@
 {
-  "widget": {
+  "widget":{
     "name": "widget.name",
     "description": "widget.description",
     "short_description": "widget.short_description",
-    "code": "alarmcrm_free_pack",
-    "secret_key": "ea57cc8581478bdc81deec2ba2c8a29cd3c001fcf1febc2f84f5b124d3c9168e",
-    "version": "1.0.1",
+    "code": "lastochka",
+    "secret_key": "f62941d16d8f11a0349e68e9af28cab513dc8b22353cb9b5d7660c8176cd474f",
+    "version": "1.0.12",
     "interface_version": 2,
-    "init_once": true,
-    "locale": [
+    "init_once": false,
+    "locale":[
       "ru"
     ],
-    "installation": true
-  },
-  "locations": [
-    "everywhere"
-  ],
-  "settings": {
-    "users":{
-      "name": "settings.users",
-      "type": "users",
-      "required": true
+    "installation": true,
+    "support": {
+      "link": "https://www.amocrm.com",
+      "email": "ziablikl@mail.ru"
     }
+  },
+  "locations":[
+    "settings",
+    "everywhere",
+    "advanced_settings"
+  ],
+  "settings":{
+    "login":{
+      "name": "settings.login",
+      "type": "text",
+      "required": false
+    }
+  },
+  "advanced":{
+    "title": "advanced.title"
   }
 }
