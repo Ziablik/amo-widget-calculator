@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 define(['jquery'], function ($) {
     var widgetSettings = {
@@ -10,7 +10,7 @@ define(['jquery'], function ($) {
                 cache: false,
                 dataType: 'json',
                 async: false,
-                url: 'https://new5c608a588697c.amocrm.ru/ajax/widgets/list',
+                url: '/ajax/widgets/list',
                 data: '',
                 success: function (data) {
                     tp=JSON.parse(data.widgets.lastochka.settings);
@@ -32,7 +32,7 @@ define(['jquery'], function ($) {
         },
 
         set : function (data) {
-            $.post('https://new5c608a588697c.amocrm.ru/ajax/widgets/edit', {
+            $.post('/ajax/widgets/edit', {
                 action: 'edit',
                 id: '348835',
                 code: 'lastochka',

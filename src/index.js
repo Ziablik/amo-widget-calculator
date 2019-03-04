@@ -1,7 +1,7 @@
 define(['jquery',
     "./helpers/widgetSettings.js",
     "./helpers/widgetHelpers.js",
-    './helpers/widgetLCard.js'], function ($, widgetSettings, widgetHelpers, widgetLCard) {
+    './helpers/widgetLCard.js',], function ($, widgetSettings, widgetHelpers, widgetLCard) {
     /**
      *
      * @returns {Widget}
@@ -35,7 +35,7 @@ define(['jquery',
             fieldsNames.push({option: 'Бюджет', id: 'lead_card_budget'});
             //Получаю все имена и id всех кастомных полей, а также поля бюджет, и заношу их в объект fieldsNames
             //Берет только поля типа число
-            $.get('https://new5c608a588697c.amocrm.ru/api/v2/account?with=custom_fields', function (data) {
+            $.get('/api/v2/account?with=custom_fields', function (data) {
                 var leads = data._embedded.custom_fields.leads;
                 for (key in leads){
                     if(leads[key].field_type == 2){
@@ -91,7 +91,7 @@ define(['jquery',
             for(key in formuls){
                 if(key != 'login'){
                     $('#work-area-lastochka').append('<div>' +
-                        '<a href="" class="spoiler_links">Спойлер</a>' +
+                        '<a href="" class="spoiler_links"></a>' +
                         '<div class="control" id="formul-info">'+ widgetHelpers.convertIDToName(key) +'='+ widgetHelpers.convertFormulToName(formuls[key]) +'</div>' +
                         '</div>');
                 }

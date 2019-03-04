@@ -42,7 +42,7 @@ define(['jquery'], function ($) {
             $.ajax({
                 type:'GET',
                 async: false,
-                url: 'https://new5c608a588697c.amocrm.ru/api/v2/account?with=custom_fields',
+                url: '/api/v2/account?with=custom_fields',
                 success: function (data) {
                     fields = data._embedded.custom_fields.leads;
                 }
@@ -121,31 +121,6 @@ define(['jquery'], function ($) {
                 }
             }
             return arrFormul;
-        },
-
-        //Валидация формулы, mainField не должен повторяться в тексте формулы, все поля используемые в формуле должны существовать
-        validateFormul : function (formul, fieldsNames, mainField) {
-            // console.log(formul, fieldsNames, mainField);
-            var arrFormul = widgetHelpers.parseFormul(formul);
-            if(!arrFormul){
-                return false
-            }
-            for(i=0; i<arrFormul.length; i++){
-                if(arrFormul[i].length > 1){
-                    if(arrFormul[i] == mainField){
-                        return false
-                    }
-                    for(j=0; j<fieldsNames.length; j++){
-                        if(arrFormul[i] == fieldsNames[j].option){
-                            break;
-                        }
-                        else if(j == fieldsNames.length-1){
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
         }
     };
 
