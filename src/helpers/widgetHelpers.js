@@ -121,8 +121,34 @@ define(['jquery'], function ($) {
                 }
             }
             return arrFormul;
+        },
+
+        //Валидация формулы, mainField не должен повторяться в тексте формулы, все поля используемые в формуле должны существовать
+        validateFormul : function (formul, fieldsNames, mainField) {
+            // console.log(formul, fieldsNames, mainField);
+            var arrFormul = this.parseFormul(formul);
+            if(!arrFormul){
+                return false
+            }
+            for(i=0; i<arrFormul.length; i++){
+                if(arrFormul[i].length > 1){
+                    if(arrFormul[i] == mainField){
+                        return false
+                    }
+                    for(j=0; j<fieldsNames.length; j++){
+                        if(arrFormul[i] == fieldsNames[j].option){
+                            break;
+                        }
+                        else if(j == fieldsNames.length-1){
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
         }
-    };
+
+};
 
     return widgetHelpers
 });
