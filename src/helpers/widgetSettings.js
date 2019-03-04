@@ -21,23 +21,17 @@ define(['jquery'], function ($) {
 
         save : function (codeField, formul) {
             var data = this.get();
-            console.log(data);
             data[codeField] = formul;
-
-            $.post('https://new5c608a588697c.amocrm.ru/ajax/widgets/edit', {
-                action: 'edit',
-                id: '348835',
-                code: 'lastochka',
-                widget_active: 'Y',
-                settings: data
-            }, function () {
-                console.log(widgetSettings.get());
-            });
+            this.set(data)
         },
 
         delete : function (codeFiled) {
             var data = this.get();
             delete data[codeFiled];
+            this.set(data)
+        },
+
+        set : function (data) {
             $.post('https://new5c608a588697c.amocrm.ru/ajax/widgets/edit', {
                 action: 'edit',
                 id: '348835',
