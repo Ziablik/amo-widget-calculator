@@ -42,7 +42,17 @@ define(['jquery',
                         fieldsNames.push({option: leads[key].name, id: leads[key].id});
                     }
                 }
+
                 //Выбор кастомного поля, чтобы создать для него формулу
+                $('#work-area-lastochka').append(self.render(
+                    {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                    {
+                        items: fieldsNames,
+                        id: 'addField',   //указание id
+                    })
+                );
+
+                //Выбор кастомного поля, чтобы добавить текст в формулу
                 $('#work-area-lastochka').append(self.render(
                     {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
                     {
@@ -50,19 +60,34 @@ define(['jquery',
                         id: 'mainField',   //указание id
                     })
                 );
-                $('.control--select--button ').css('width', '15%');
-                $('.control--select').append('=');
+                $('.control--select--button').css('width', '15%');
+                $('#mainField').parent().append('= ');
 
                 //Поле для ввода формулы
-                $('.control--select').append(self.render(
+                $('#mainField').parent().append(self.render(
                     {ref: '/tmpl/controls/input.twig'},// объект data в данном случае содержит только ссылку на шаблон
                     {
                         id: 'formulField'   //указание id
                     }));
                 $('#formulField').css('width', '50%');
 
+                //Кнопка для доавбления имя поля в форму создания формулы
+                $('#addField').parent().append(self.render(
+                    {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                    {
+                        id: 'buttonAddField'   //указание id
+                    }));
+                $('#buttonAddField span').append('Добавить в формулу');
+                $('#buttonAddField').css('background', 'rgb(170, 255, 47) none repeat scroll 0% 0%').css('color', '#fff');
+
+                $('#buttonAddField').on('click', function () {
+                    console.log($(this).parent().find('.control--select--button-inner').text());
+                    console.log($('#formulField').val());
+                    $('#formulField').val($('#formulField').val() + $(this).parent().find('.control--select--button-inner').text());
+                });
+
                 //Кнопка для сохранения формулы
-                $('.control--select').append(self.render(
+                $('#mainField').parent().append(self.render(
                     {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
                     {
                         id: 'buttonSaveFormul'   //указание id
@@ -71,11 +96,10 @@ define(['jquery',
                 $('#buttonSaveFormul').css('background', '#4c8bf7').css('color', '#fff');
 
                 $('#buttonSaveFormul').on('click', function () {
-                    if(widgetHelpers.validateFormul($('#formulField').val(), fieldsNames, $('.control--select--button-inner').text())){
+                    if(widgetHelpers.validateFormul($('#formulField').val(), fieldsNames, $(this).parent().find('.control--select--button-inner').text())){
                         alert('Формула создана');
                         $('#formulField').css('border', '1px solid rgb(0,255,0)');
-                        console.log($('.control--select--button').attr('data-value'));
-                        widgetSettings.save($('.control--select--button').attr('data-value'), widgetHelpers.convertFormulToID($('#formulField').val()))
+                        widgetSettings.save($(this).parent().find('.control--select--button').attr('data-value'), widgetHelpers.convertFormulToID($('#formulField').val()))
                     }
                     else{
                         alert("Не правильное оформление");
@@ -91,17 +115,12 @@ define(['jquery',
             for(key in formuls){
                 if(key != 'login'){
                     $('#work-area-lastochka').append('<div>' +
-                        '<a href="" class="spoiler_links"></a>' +
+                        '<button id="spoiler" class="button-input" type="button"></button>' +
                         '<div class="control" id="formul-info">'+ widgetHelpers.convertIDToName(key) +'='+ widgetHelpers.convertFormulToName(formuls[key]) +'</div>' +
                         '</div>');
                 }
             }
-            $("div#formul-info").hide('normal');
-            $('.spoiler_links').on('click', function(){
-                $("div#formul-info").hide('normal');
-                $(this).parent().children('div#formul-info').toggle('normal');
-                return false;
-            });
+            $("div#formul-info").hide();
             $('div#formul-info').each(function () {
                 $(this).append(self.render(
                     {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
@@ -120,7 +139,15 @@ define(['jquery',
                         break;
                     }
                 }
-                $(this).parent().find('a').text(codeField);
+
+                $(this).parent().find('#spoiler').text(codeField);
+                $(this).parent().find('#spoiler').css('background', 'linear-gradient(to bottom,#fcfcfc 0%,#f8f8f9 100%)')
+                    .css('color', 'inherit').css('width', '77%');
+                $(this).parent().find('#spoiler').on('click', function(){
+                    $(this).parent().children('div#formul-info').toggle('normal');
+                    return false;
+                });
+
                 $(this).find('button').on('click', function () {
                     if(confirm('Вы уверены, что хотите удалить формулу?')){
                         codeField = widgetHelpers.convertNameToID(codeField);
@@ -162,8 +189,8 @@ define(['jquery',
             },
             advancedSettings: function() {
                 console.log('advanced');
-                self.getFormulField();
                 self.getFormulsList();
+                self.getFormulField();
 
                 return true;
             },
