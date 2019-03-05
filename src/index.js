@@ -44,7 +44,8 @@ define(['jquery',
                 }
 
                 //Выбор кастомного поля, чтобы создать для него формулу
-                $('#work-area-lastochka').append(self.render(
+                $('#work-area-lastochka').append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>')
+                $('#formul--creating').append(self.render(
                     {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
                     {
                         items: fieldsNames,
@@ -53,7 +54,7 @@ define(['jquery',
                 );
 
                 //Выбор кастомного поля, чтобы добавить текст в формулу
-                $('#work-area-lastochka').append(self.render(
+                $('#formul--creating').append(self.render(
                     {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
                     {
                         items: fieldsNames,
@@ -78,7 +79,6 @@ define(['jquery',
                         id: 'buttonAddField'   //указание id
                     }));
                 $('#buttonAddField span').append('Добавить в формулу');
-                $('#buttonAddField').css('background', 'rgb(170, 255, 47) none repeat scroll 0% 0%').css('color', '#fff');
 
                 $('#buttonAddField').on('click', function () {
                     console.log($(this).parent().find('.control--select--button-inner').text());
@@ -114,49 +114,51 @@ define(['jquery',
             var formuls = widgetSettings.get();
             for(key in formuls){
                 if(key != 'login'){
-                    $('#work-area-lastochka').append('<div>' +
+                    $('#work-area-lastochka').append('<div class="safety_settings__section_new monitoring-settings__section">' +
                         '<button id="spoiler" class="button-input" type="button"></button>' +
-                        '<div class="control" id="formul-info">'+ widgetHelpers.convertIDToName(key) +'='+ widgetHelpers.convertFormulToName(formuls[key]) +'</div>' +
+                        '<table class="content__account__settings">' +
+                            '<tbody>' +
+                                '<tr>' +
+                                    '<td class="content__account__settings__title" style="width: 20%">Имя поля</td>' +
+                                    '<td class="content__account__settings__title" id="field-info">'+widgetHelpers.convertIDToName(key)+'</td>' +
+                                '</tr>' +
+                                '<tr>' +
+                                    '<td class="content__account__settings__title" style="width: 20%">Формула</td>' +
+                                    '<td class="content__account__settings__field">' +
+                                        '<input class="text-input" id="formul-info" value="'+ widgetHelpers.convertFormulToName(formuls[key]) + '" type="text">' +
+                                    '</td>' +
+                                '</tr>' +
+                            '</tbody>' +
+                        '</table>' +
                         '</div>');
                 }
             }
-            $("div#formul-info").hide();
-            $('div#formul-info').each(function () {
-                $(this).append(self.render(
+
+            $('button#spoiler').each(function () {
+                $(this).css('background', 'linear-gradient(to bottom,#fcfcfc 0%,#f8f8f9 100%)')
+                    .css('width', '100%').css('text-align', 'left');
+                $(this).text('▼' + $(this).parent().find('#field-info').text());
+                $(this).on('click', function () {
+                    $(this).parent().children('table.content__account__settings').toggle('normal');
+                })
+            });
+
+            $('tbody').each(function () {
+                $(this).append('<tr><td id="buttonField"></td></tr>');
+                $(this).find('#buttonField').append(self.render(
                     {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
                     {
                         id: 'buttonDeleteFormul'   //указание id
                     }));
-                $(this).find('button').css('background', 'rgb(240,0,0)').css('color', '#fff');
-                $(this).find('span').append('Удалить формулу');
-                var mainField = $(this).html(),
-                    codeField = '';
-                for(i=0; i<mainField.length; i++){
-                    if(mainField[i] != '='){
-                        codeField = codeField + mainField[i];
-                    }
-                    if(mainField[i] == '='){
-                        break;
-                    }
-                }
-
-                $(this).parent().find('#spoiler').text(codeField);
-                $(this).parent().find('#spoiler').css('background', 'linear-gradient(to bottom,#fcfcfc 0%,#f8f8f9 100%)')
-                    .css('color', 'inherit').css('width', '77%');
-                $(this).parent().find('#spoiler').on('click', function(){
-                    $(this).parent().children('div#formul-info').toggle('normal');
-                    return false;
-                });
-
-                $(this).find('button').on('click', function () {
+                $(this).find('#buttonDeleteFormul').append('Удалить формулу');
+                $(this).find('#buttonDeleteFormul').on('click', function () {
                     if(confirm('Вы уверены, что хотите удалить формулу?')){
-                        codeField = widgetHelpers.convertNameToID(codeField);
-                        widgetSettings.delete(codeField);
-                        $(this).parent().parent().detach();
+                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('tbody').find('#field-info').text()));
+                        $(this).closest('div').detach();
                         alert('Формула удалена');
                     }
                 })
-            })
+            });
         };
 
         /**
