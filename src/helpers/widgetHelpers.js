@@ -1,5 +1,27 @@
 define(['jquery'], function ($) {
     var widgetHelpers = {
+        //
+        getFieldsNames : function() {
+            var fieldsNames = [];
+            fieldsNames.push({option: 'Бюджет', id: 'lead_card_budget'});
+            //Получаю все имена и id всех кастомных полей, а также поля бюджет, и заношу их в объект fieldsNames
+            //Берет только поля типа число
+            $.ajax({
+                url: '/api/v2/account?with=custom_fields',
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    var leads = data._embedded.custom_fields.leads;
+                    for (key in leads){
+                        if(leads[key].field_type == 2){
+                            fieldsNames.push({option: leads[key].name, id: leads[key].id});
+                        }
+                    }
+                }
+            });
+            return fieldsNames;
+        },
+
         //Замена названий полей в формуле на id полей
         convertFormulToID : function (formulByField) {
             console.log(formulByField);

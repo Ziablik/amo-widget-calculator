@@ -31,99 +31,100 @@ define(['jquery',
         };
 
         this.getFormulField = function () {
-            var fieldsNames = [];
-            fieldsNames.push({option: 'Бюджет', id: 'lead_card_budget'});
-            //Получаю все имена и id всех кастомных полей, а также поля бюджет, и заношу их в объект fieldsNames
-            //Берет только поля типа число
-            $.get('/api/v2/account?with=custom_fields', function (data) {
-                var leads = data._embedded.custom_fields.leads;
-                for (key in leads){
-                    if(leads[key].field_type == 2){
-                        fieldsNames.push({option: leads[key].name, id: leads[key].id});
-                    }
-                }
+            var fieldsNames = widgetHelpers.getFieldsNames();
 
-                //Выбор кастомного поля, чтобы создать для него формулу
-                $('#work-area-lastochka').append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>')
-                $('#formul--creating').append(self.render(
-                    {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
-                    {
-                        items: fieldsNames,
-                        id: 'addField',   //указание id
-                    })
-                );
+            //Выбор кастомного поля, чтобы создать для него формулу
+            $('#work-area-lastochka').append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>');
+            $('#formul--creating').append('<table class="content__account__settings">' +
+                                                '<tbody>' +
+                                                    '<tr>' +
+                                                        '<td>'+self.render(
+                                                        {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                                                        {
+                                                            items: fieldsNames,
+                                                            id: 'addField',   //указание id
+                                                        })+'</td>' +
+                                                        '<td>'+self.render(
+                                                        {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                                                        {
+                                                            id: 'buttonAddField'   //указание id
+                                                        })+'</td>' +
+                                                    '</tr>' +
+                                                    '<tr>' +
+                                                        '<td id="selectField">'+self.render(
+                                                        {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                                                        {
+                                                            items: fieldsNames,
+                                                            id: 'mainField',   //указание id
+                                                        })+'</td>' +
+                                                        '<td>'+self.render(
+                                                        {ref: '/tmpl/controls/input.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                                                        {
+                                                            id: 'formulField'   //указание id
+                                                        })+'</td>' +
+                                                    '</tr>' +
+                                                    '<tr>' +
+                                                        '<td></td>' +
+                                                        '<td id="saveButton">'+self.render(
+                                                            {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                                                            {
+                                                                id: 'buttonSaveFormul'   //указание id
+                                                            })+'</td>' +
+                                                    '</tr>' +
+                                                '</tbody>' +
+                                            '</table>');
+            $('#formul--creating').find('td:first').css('width', '15%');
+            //Кнопка добавляется style для td#saveButton
+            $('td#saveButton').css('text-align', 'rigth');
+            $('#formulField').css('width', '100%');
 
-                //Выбор кастомного поля, чтобы добавить текст в формулу
-                $('#formul--creating').append(self.render(
-                    {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
-                    {
-                        items: fieldsNames,
-                        id: 'mainField',   //указание id
-                    })
-                );
-                $('.control--select--button').css('width', '15%');
-                $('#mainField').parent().append('= ');
 
-                //Поле для ввода формулы
-                $('#mainField').parent().append(self.render(
-                    {ref: '/tmpl/controls/input.twig'},// объект data в данном случае содержит только ссылку на шаблон
-                    {
-                        id: 'formulField'   //указание id
-                    }));
-                $('#formulField').css('width', '50%');
 
-                //Кнопка для доавбления имя поля в форму создания формулы
-                $('#addField').parent().append(self.render(
-                    {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
-                    {
-                        id: 'buttonAddField'   //указание id
-                    }));
-                $('#buttonAddField span').append('Добавить в формулу');
-
-                $('#buttonAddField').on('click', function () {
-                    console.log($(this).parent().find('.control--select--button-inner').text());
-                    console.log($('#formulField').val());
-                    $('#formulField').val($('#formulField').val() + $(this).parent().find('.control--select--button-inner').text());
-                });
-
-                //Кнопка для сохранения формулы
-                $('#mainField').parent().append(self.render(
-                    {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
-                    {
-                        id: 'buttonSaveFormul'   //указание id
-                    }));
-                $('#buttonSaveFormul span').append('Создать формулу');
-                $('#buttonSaveFormul').css('background', '#4c8bf7').css('color', '#fff');
-
-                $('#buttonSaveFormul').on('click', function () {
-                    if(widgetHelpers.validateFormul($('#formulField').val(), fieldsNames, $(this).parent().find('.control--select--button-inner').text())){
-                        alert('Формула создана');
-                        $('#formulField').css('border', '1px solid rgb(0,255,0)');
-                        widgetSettings.save($(this).parent().find('.control--select--button').attr('data-value'), widgetHelpers.convertFormulToID($('#formulField').val()))
-                    }
-                    else{
-                        alert("Не правильное оформление");
-                        $('#formulField').css('border', '1px solid rgb(255,0,0)')
-                    }
-                })
+            $('#buttonAddField span').append('Добавить в формулу');
+            $('#buttonAddField').on('click', function () {
+                $('#formulField').val($('#formulField').val() + $(this).closest('tr').find('.control--select--button-inner').text());
             });
+
+            $('#buttonSaveFormul span').append('Создать формулу');
+            $('#buttonSaveFormul').css('background', '#4c8bf7').css('color', '#fff');
+
+            $('#buttonSaveFormul').on('click', function () {
+                if(widgetHelpers.validateFormul($('#formulField').val(), fieldsNames, $(this).closest('tbody').find('.control--select--button-inner').text())){
+                    alert('Формула создана');
+                    $('#formulField').css('border', '1px solid rgb(0,255,0)');
+                    widgetSettings.save($(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
+                        widgetHelpers.convertFormulToID($('#formulField').val()))
+                }
+                else{
+                    alert("Не правильное оформление");
+                    $('#formulField').css('border', '1px solid rgb(255,0,0)')
+                }
+            })
         };
 
         //Функция отрисовывает все существующие формулы на странице расширненных настроек
         this.getFormulsList = function () {
-            var formuls = widgetSettings.get();
+            var formuls = widgetSettings.get(),
+                fieldsNames = widgetHelpers.getFieldsNames();
             for(key in formuls){
-                if(key != 'login'){
+                if(key !== 'login'){
                     $('#work-area-lastochka').append('<div class="safety_settings__section_new monitoring-settings__section">' +
-                        '<button id="spoiler" class="button-input" type="button"></button>' +
+                        '<button id="spoiler" class="button-input" type="button">▼'+widgetHelpers.convertIDToName(key)+'</button>' +
                         '<table class="content__account__settings">' +
-                            '<tbody>' +
+                            '<tbody id="table--formul">' +
                                 '<tr>' +
-                                    '<td class="content__account__settings__title" style="width: 20%">Имя поля</td>' +
-                                    '<td class="content__account__settings__title" id="field-info">'+widgetHelpers.convertIDToName(key)+'</td>' +
+                                    '<td class="content__account__settings__title" style="width: 25%">Имя поля</td>' +
+                                    '<td>' +
+                                    self.render(
+                                        {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                                        {
+                                            items: fieldsNames,
+                                            id: 'selectResultField',   //указание id
+                                        }) +
+                                '</td>' +
                                 '</tr>' +
                                 '<tr>' +
-                                    '<td class="content__account__settings__title" style="width: 20%">Формула</td>' +
+                                    '<td class="content__account__settings__title" style="width: 25%">Формула</td>' +
                                     '<td class="content__account__settings__field">' +
                                         '<input class="text-input" id="formul-info" value="'+ widgetHelpers.convertFormulToName(formuls[key]) + '" type="text">' +
                                     '</td>' +
@@ -134,28 +135,81 @@ define(['jquery',
                 }
             }
 
+            //Не выводится console.log, То есть даже не заходит в функцию each
             $('button#spoiler').each(function () {
+                console.log('test spoiler');
                 $(this).css('background', 'linear-gradient(to bottom,#fcfcfc 0%,#f8f8f9 100%)')
                     .css('width', '100%').css('text-align', 'left');
-                $(this).text('▼' + $(this).parent().find('#field-info').text());
+                $(this).parent().find('.control--select--button-inner').text($(this).text().substr(1));
                 $(this).on('click', function () {
                     $(this).parent().children('table.content__account__settings').toggle('normal');
                 })
             });
 
-            $('tbody').each(function () {
-                $(this).append('<tr><td id="buttonField"></td></tr>');
-                $(this).find('#buttonField').append(self.render(
+            //Тоже самое с функцией each
+            $('tbody#table--formul').each(function () {
+                console.log('test tbody');
+                $(this).append('<tr><td></td><td id="buttons"></td></tr>');
+                $(this).find('#buttons').css('text-align', 'right');
+
+                $(this).find('#buttons').append(self.render(
                     {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
                     {
                         id: 'buttonDeleteFormul'   //указание id
                     }));
-                $(this).find('#buttonDeleteFormul').append('Удалить формулу');
+                $(this).find('#buttonDeleteFormul').find('span').append('Удалить формулу');
                 $(this).find('#buttonDeleteFormul').on('click', function () {
                     if(confirm('Вы уверены, что хотите удалить формулу?')){
-                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('tbody').find('#field-info').text()));
+                        console.log($(this).closest('div').find('#spoiler').text());
+                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)));
                         $(this).closest('div').detach();
                         alert('Формула удалена');
+                    }
+                });
+
+                $(this).find('#buttons').append(self.render(
+                    {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                    {
+                        id: 'buttonUpdateFormul'   //указание id
+                    }));
+                $(this).find('#buttonUpdateFormul').find('span').append('Обновить формулу');
+                $(this).find('#buttonUpdateFormul').hide();
+
+                var formulText = $(this).find('#formul-info').val(),
+                    fieldText = $(this).find('.control--select--button-inner').text();
+                $(this).find('#formul-info').on('keyup', function () {
+                    if($(this).val() != formulText || fieldText != $(this).closest('tbody').find('.control--select--button-inner').text()){
+                        $(this).closest('tbody').find('#buttonUpdateFormul').show();
+                    }
+                    else{
+                        $(this).closest('tbody').find('#buttonUpdateFormul').hide();
+                    }
+                });
+                
+                $(this).find('#selectResultField').on('input', function () {
+                    console.log($(this).closest('tbody').find('#formul-info').val());
+                    console.log($(this).closest('tbody').find('.control--select--button-inner').text());
+                    if($(this).closest('tbody').find('#formul-info').val() != formulText ||
+                        fieldText != $(this).closest('tbody').find('.control--select--button-inner').text()){
+                        $(this).closest('tbody').find('#buttonUpdateFormul').show();
+                    }
+                    else{
+                        $(this).closest('tbody').find('#buttonUpdateFormul').hide();
+                    }
+                });
+                
+                $(this).find('#buttonUpdateFormul').on('click', function () {
+                    if(widgetHelpers.validateFormul($(this).closest('tbody').find('#formul-info').val(), fieldsNames,
+                                                    $(this).closest('tbody').find('.control--select--button-inner').text())){
+                        alert('Формула обновлена');
+                        $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
+                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)));
+                        widgetSettings.save($(this).closest('tbody').find('.control--select--button').attr('data-value'),
+                                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()))
+                    }
+                    else{
+                        alert("Не правильное оформление");
+                        $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(255,0,0)')
                     }
                 })
             });
@@ -191,9 +245,8 @@ define(['jquery',
             },
             advancedSettings: function() {
                 console.log('advanced');
-                self.getFormulsList();
                 self.getFormulField();
-
+                self.getFormulsList();
                 return true;
             },
             settings: function () {
