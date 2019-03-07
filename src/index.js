@@ -35,7 +35,8 @@ define(['jquery',
 
             //Выбор кастомного поля, чтобы создать для него формулу
             $('#work-area-lastochka').append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>');
-            $('#formul--creating').append('<table class="content__account__settings">' +
+            $('#formul--creating').append('<div class="safety_settings__section_head_new_title">Создание формулы</div>' +
+                                            '<table class="content__account__settings">' +
                                                 '<tbody>' +
                                                     '<tr>' +
                                                         '<td>'+self.render(
@@ -74,7 +75,7 @@ define(['jquery',
                                                 '</tbody>' +
                                             '</table>');
             $('#formul--creating').find('td:first').css('width', '15%');
-            //Кнопка добавляется style для td#saveButton
+            //Не добавляется style для td#saveButton
             $('td#saveButton').css('text-align', 'rigth');
             $('#formulField').css('width', '100%');
 
@@ -106,8 +107,10 @@ define(['jquery',
         this.getFormulsList = function () {
             var formuls = widgetSettings.get(),
                 fieldsNames = widgetHelpers.getFieldsNames();
+            delete formuls['login'];
+            delete formuls['undefined'];
             for(key in formuls){
-                if(key !== 'login'){
+                if(key != 'login'){
                     $('#work-area-lastochka').append('<div class="safety_settings__section_new monitoring-settings__section">' +
                         '<button id="spoiler" class="button-input" type="button">▼'+widgetHelpers.convertIDToName(key)+'</button>' +
                         '<table class="content__account__settings">' +
@@ -116,10 +119,10 @@ define(['jquery',
                                     '<td class="content__account__settings__title" style="width: 25%">Имя поля</td>' +
                                     '<td>' +
                                     self.render(
-                                        {ref: '/tmpl/controls/select.twig'},// объект data в данном случае содержит только ссылку на шаблон
+                                        {ref: '/tmpl/controls/select.twig'},
                                         {
                                             items: fieldsNames,
-                                            id: 'selectResultField',   //указание id
+                                            id: 'selectResultField',
                                         }) +
                                 '</td>' +
                                 '</tr>' +
@@ -137,7 +140,6 @@ define(['jquery',
 
             //Не выводится console.log, То есть даже не заходит в функцию each
             $('button#spoiler').each(function () {
-                console.log('test spoiler');
                 $(this).css('background', 'linear-gradient(to bottom,#fcfcfc 0%,#f8f8f9 100%)')
                     .css('width', '100%').css('text-align', 'left');
                 $(this).parent().find('.control--select--button-inner').text($(this).text().substr(1));
@@ -148,7 +150,6 @@ define(['jquery',
 
             //Тоже самое с функцией each
             $('tbody#table--formul').each(function () {
-                console.log('test tbody');
                 $(this).append('<tr><td></td><td id="buttons"></td></tr>');
                 $(this).find('#buttons').css('text-align', 'right');
 
@@ -245,6 +246,7 @@ define(['jquery',
             },
             advancedSettings: function() {
                 console.log('advanced');
+                console.log(widgetSettings.get());
                 self.getFormulField();
                 self.getFormulsList();
                 return true;
