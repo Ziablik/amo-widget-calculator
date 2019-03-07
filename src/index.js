@@ -76,7 +76,7 @@ define(['jquery',
                                             '</table>');
             $('#formul--creating').find('td:first').css('width', '15%');
             //Не добавляется style для td#saveButton
-            $('td#saveButton').css('text-align', 'rigth');
+            $('td#saveButton').css('text-align', 'right');
             $('#formulField').css('width', '100%');
 
 
@@ -187,7 +187,7 @@ define(['jquery',
                     }
                 });
                 
-                $(this).find('#selectResultField').on('input', function () {
+                $(this).find('#selectResultField').on('change', function () {
                     console.log($(this).closest('tbody').find('#formul-info').val());
                     console.log($(this).closest('tbody').find('.control--select--button-inner').text());
                     if($(this).closest('tbody').find('#formul-info').val() != formulText ||
