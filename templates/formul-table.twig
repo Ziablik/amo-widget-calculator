@@ -1,0 +1,23 @@
+{# @var  #}
+<div class="safety_settings__section_new monitoring-settings__section">
+    <button id="spoiler" class="button-input" type="button" style="background: rgba(0, 0, 0, 0) linear-gradient(rgb(252, 252, 252) 0%, rgb(248, 248, 249) 100%) repeat scroll 0% 0%; width: 100%; text-align: left;">
+        ▼{{ fieldName }}</button>
+    <table class="content__account__settings">
+        <tbody id="table--formul">
+            <tr>
+                <td class="content__account__settings__title" style="width: 25%">Имя поля</td>
+                <td>{% include 'templates/select.twig' with {items:fieldsNames, id:'selectResultField'}%}</td>
+            </tr>
+            <tr>
+                <td class="content__account__settings__title" style="width: 25%">Формула</td>
+                <td class="content__account__settings__field">
+                    <input class="text-input" id="formul-info" value="{{ formul }}" type="text">
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
