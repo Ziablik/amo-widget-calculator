@@ -13,20 +13,20 @@ define(['jquery'], function ($) {
                 url: '/ajax/widgets/list',
                 data: '',
                 success: function (data) {
-                    tp=JSON.parse(data.widgets[wcode].settings);
+                    tp=JSON.parse(data.widgets[wcode.toString()].settings);
                 }
             });
             return tp;
         },
 
         save : function (codeField, formul, wcode) {
-            var data = this.get();
+            var data = this.get(wcode);
             data[codeField] = formul;
             this.set(data, wcode)
         },
 
         delete : function (codeFiled, wcode) {
-            var data = this.get();
+            var data = this.get(wcode);
             delete data[codeFiled];
             this.set(data, wcode)
         },
@@ -35,7 +35,7 @@ define(['jquery'], function ($) {
             $.post('/ajax/widgets/edit', {
                 action: 'edit',
                 id: '348835',
-                code: wcode,
+                code: wcode.toString(),
                 widget_active: 'Y',
                 settings: data
             }, function () {

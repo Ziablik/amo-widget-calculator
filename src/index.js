@@ -11,7 +11,6 @@ define(['jquery',
         var self = this;
         system = self.system;
         var wcode, settings, users, wurl, enabled;
-
         /**
          * Функция для загрузки шаблонов по из папки templates
          * @param template
@@ -33,7 +32,7 @@ define(['jquery',
         this.getFormulField = function () {
             var fieldsNames = widgetHelpers.getFieldsNames();
             //Выбор кастомного поля, чтобы создать для него формулу
-            $('#work-area-lastochka').append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>');
+            $('#work-area-' + wcode).append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>');
             self.getTemplate('formul-creating', {}, function (data) {
                 var html = data.render({
                     fieldsNames
@@ -57,7 +56,7 @@ define(['jquery',
                         alert('Формула создана');
                         $('#formulField').css('border', '1px solid rgb(0,255,0)');
                         widgetSettings.save($(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
-                            widgetHelpers.convertFormulToID($('#formulField').val()))
+                            widgetHelpers.convertFormulToID($('#formulField').val()), wcode)
                     }
                     else{
                         alert("Не правильное оформление");
@@ -69,7 +68,7 @@ define(['jquery',
 
         //Функция отрисовывает все существующие формулы на странице расширненных настроек
         this.getFormulsList = function () {
-            var formuls = widgetSettings.get(),
+            var formuls = widgetSettings.get(wcode),
                 fieldsNames = widgetHelpers.getFieldsNames();
             delete formuls['login'];
             console.log(formuls);
@@ -86,7 +85,7 @@ define(['jquery',
                 //     console.log('template');
                 //     $('#work-area-lastochka').append(html);
                 // });
-                $('#work-area-lastochka').append('<div class="safety_settings__section_new monitoring-settings__section">' +
+                $('#work-area-'+wcode).append('<div class="safety_settings__section_new monitoring-settings__section">' +
                     '<button id="spoiler" class="button-input" type="button">▼'+widgetHelpers.convertIDToName(key)+'</button>' +
                     '<table class="content__account__settings">' +
                         '<tbody id="table--formul">' +
@@ -134,7 +133,7 @@ define(['jquery',
                 $(this).find('#buttonDeleteFormul').on('click', function () {
                     if(confirm('Вы уверены, что хотите удалить формулу?')){
                         console.log($(this).closest('div').find('#spoiler').text());
-                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)));
+                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode);
                         $(this).closest('div').detach();
                         alert('Формула удалена');
                     }
@@ -176,9 +175,9 @@ define(['jquery',
                                                     $(this).closest('tbody').find('.control--select--button-inner').text())){
                         alert('Формула обновлена');
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
-                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)));
+                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode);
                         widgetSettings.save($(this).closest('tbody').find('.control--select--button').attr('data-value'),
-                                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()))
+                                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()), wcode)
                     }
                     else{
                         alert("Не правильное оформление");
@@ -194,9 +193,8 @@ define(['jquery',
         this.callbacks = {
             render: function () {
                 console.log('render');
-                settings = self.get_settings;
+                settings = self.get_settings();
                 wcode = settings.widget_code;
-
                 //Подгружаем стили
                 if (FreePackWidgetEnv === 'dev') {
                     wurl = 'https://localhost:8080/amo-widget-calculator'
@@ -213,13 +211,12 @@ define(['jquery',
             bind_actions: function () {
                 console.log('bind_action');
                 if(self.system().area == 'lcard'){
-                    widgetLCard.createAction();
+                    widgetLCard.createAction(wcode);
                 }
                 return true;
             },
             advancedSettings: function() {
                 console.log('advanced');
-                console.log(widgetSettings.get());
                 self.getFormulField();
                 self.getFormulsList();
                 return true;
