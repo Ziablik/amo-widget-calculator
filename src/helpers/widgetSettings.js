@@ -3,7 +3,7 @@
 define(['jquery'], function ($) {
     var widgetSettings = {
 
-        get : function () {
+        get : function (wcode) {
             var tp;
             $.ajax({
                 type: 'POST',
@@ -13,33 +13,33 @@ define(['jquery'], function ($) {
                 url: '/ajax/widgets/list',
                 data: '',
                 success: function (data) {
-                    tp=JSON.parse(data.widgets.lastochka.settings);
+                    tp=JSON.parse(data.widgets[wcode].settings);
                 }
             });
             return tp;
         },
 
-        save : function (codeField, formul) {
+        save : function (codeField, formul, wcode) {
             var data = this.get();
             data[codeField] = formul;
-            this.set(data)
+            this.set(data, wcode)
         },
 
-        delete : function (codeFiled) {
+        delete : function (codeFiled, wcode) {
             var data = this.get();
             delete data[codeFiled];
-            this.set(data)
+            this.set(data, wcode)
         },
 
-        set : function (data) {
+        set : function (data, wcode) {
             $.post('/ajax/widgets/edit', {
                 action: 'edit',
                 id: '348835',
-                code: 'lastochka',
+                code: wcode,
                 widget_active: 'Y',
                 settings: data
             }, function () {
-                console.log(widgetSettings.get());
+                console.log(widgetSettings.get(wcode));
             });
         }
     };
