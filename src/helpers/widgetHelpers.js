@@ -1,24 +1,17 @@
 define(['jquery'], function ($) {
     var widgetHelpers = {
-        //
         getFieldsNames : function() {
-            var fieldsNames = [];
-            fieldsNames.push({option: 'Бюджет', id: 'lead_card_budget'});
+            var fieldsNames = [{option: 'Бюджет', id: 'lead_card_budget'}];
+
             //Получаю все имена и id всех кастомных полей, а также поля бюджет, и заношу их в объект fieldsNames
             //Берет только поля типа число
-            $.ajax({
-                url: '/api/v2/account?with=custom_fields',
-                dataType: 'json',
-                async: false,
-                success: function (data) {
-                    var leads = data._embedded.custom_fields.leads;
-                    for (key in leads){
-                        if(leads[key].field_type == 2){
-                            fieldsNames.push({option: leads[key].name, id: leads[key].id});
-                        }
-                    }
+            var fields = AMOCRM.constant('account').cf;
+            for (key in fields) {
+                if(fields[key].TYPE_ID === '2'){
+                    fieldsNames.push({option: fields[key].NAME, id: fields[key].ID});
                 }
-            });
+            }
+
             return fieldsNames;
         },
 
@@ -81,7 +74,7 @@ define(['jquery'], function ($) {
 
         //Конвертировать id поля на имя поля
         convertIDToName : function (fieldID) {
-            if(fieldID == 'lead_card_budget'){
+            if(fieldID === 'lead_card_budget'){
                 return 'Бюджет'
             }
             return AMOCRM.constant("account").cf[fieldID].NAME;
@@ -168,8 +161,23 @@ define(['jquery'], function ($) {
                 }
             }
             return true;
-        }
+        },
 
+        /**
+         * Метод возращает формулу по коду поля codeField
+         * @param codeField
+         * @return {string}
+         */
+        getFormulaByCodeField: function (codeField) {
+            var formula = ''
+            $.each(formulas, function (key, el) {
+                if (el.codeField === codeField) {
+                    formula = el.formul
+                }
+            })
+
+            return formula
+        }
 };
 
     return widgetHelpers

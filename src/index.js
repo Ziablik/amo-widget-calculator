@@ -10,6 +10,7 @@ define(['jquery',
     var Widget = function () {
         var self = this;
         system = self.system;
+        var formulas;
         var wcode, settings, users, wurl, enabled;
         /**
          * Функция для загрузки шаблонов по из папки templates
@@ -28,11 +29,19 @@ define(['jquery',
                 load: callback, //вызов функции обратного вызова
             }, params) //параметры для шаблона
         };
-        
+
+        /**
+         * Метод устанавливает формулы из json строки в массив
+         */
+        self.setLocalFormulas = function () {
+            formulas = widgetSettings.getFormulas(wcode)
+        }
+
         this.getFormulField = function () {
             var fieldsNames = widgetHelpers.getFieldsNames();
             //Выбор кастомного поля, чтобы создать для него формулу
             $('#work-area-' + wcode).append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>');
+
             self.getTemplate('formul-creating', {}, function (data) {
                 var html = data.render({
                     fieldsNames
@@ -53,13 +62,17 @@ define(['jquery',
 
                 $('#buttonSaveFormul').on('click', function () {
                     if(widgetHelpers.validateFormul($('#formulField').val(), fieldsNames, $(this).closest('tbody').find('#mainField').parent().find('.control--select--button-inner').text())){
-                        alert('Формула создана');
                         $('#formulField').css('border', '1px solid rgb(0,255,0)');
-                        widgetSettings.save($(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
-                            widgetHelpers.convertFormulToID($('#formulField').val()), wcode)
+
+                        widgetSettings.save(
+                            $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
+                            widgetHelpers.convertFormulToID($('#formulField').val()),
+                            wcode,
+                            formulas,
+                            settings.id
+                        )
                     }
                     else{
-                        alert("Не правильное оформление");
                         $('#formulField').css('border', '1px solid rgb(255,0,0)')
                     }
                 })
@@ -68,48 +81,26 @@ define(['jquery',
 
         //Функция отрисовывает все существующие формулы на странице расширненных настроек
         this.getFormulsList = function () {
-            var formuls = widgetSettings.get(wcode),
-                fieldsNames = widgetHelpers.getFieldsNames();
-            delete formuls['login'];
-            console.log(formuls);
-            for(key in formuls){
-                // var formul = widgetHelpers.convertFormulToName(formuls[key]),
-                //     fieldName = widgetHelpers.convertIDToName(key);
-                // console.log('cycle');
-                // self.getTemplate('formul-table', {}, function (date) {
-                //     var html = date.render({
-                //         fieldsNames,
-                //         formul,
-                //         fieldName,
-                //     });
-                //     console.log('template');
-                //     $('#work-area-lastochka').append(html);
-                // });
-                $('#work-area-'+wcode).append('<div class="safety_settings__section_new monitoring-settings__section">' +
-                    '<button id="spoiler" class="button-input" type="button">▼'+widgetHelpers.convertIDToName(key)+'</button>' +
-                    '<table class="content__account__settings">' +
-                        '<tbody id="table--formul">' +
-                            '<tr>' +
-                                '<td class="content__account__settings__title" style="width: 25%">Имя поля</td>' +
-                                '<td>' +
-                                self.render(
-                                    {ref: '/tmpl/controls/select.twig'},
-                                    {
-                                        items: fieldsNames,
-                                        id: 'selectResultField',
-                                    }) +
-                            '</td>' +
-                            '</tr>' +
-                            '<tr>' +
-                                '<td class="content__account__settings__title" style="width: 25%">Формула</td>' +
-                                '<td class="content__account__settings__field">' +
-                                    '<input class="text-input" id="formul-info" value="'+ widgetHelpers.convertFormulToName(formuls[key]) + '" type="text">' +
-                                '</td>' +
-                            '</tr>' +
-                        '</tbody>' +
-                    '</table>' +
-                    '</div>');
-            }
+            var fieldsNames = widgetHelpers.getFieldsNames();
+
+            $.each(formulas, function (key, el) {
+                var formul = widgetHelpers.convertFormulToName(el.formul);
+                var fieldName = widgetHelpers.convertIDToName(el.codeField);
+
+
+                self.getTemplate('formul-table', {}, function (date) {
+                    var html = date.render({
+                        fieldsNames,
+                        formul,
+                        fieldName,
+                        selectedField: el.codeField
+                    });
+
+                    console.log('template');
+                    $('#work-area-' + wcode).append(html);
+                });
+            })
+
 
             $('button#spoiler').each(function () {
                 $(this).css('background', 'linear-gradient(to bottom,#fcfcfc 0%,#f8f8f9 100%)')
@@ -157,7 +148,7 @@ define(['jquery',
                         $(this).closest('tbody').find('#buttonUpdateFormul').hide();
                     }
                 });
-                
+
                 $(this).find('#selectResultField').on('change', function () {
                     console.log($(this).closest('tbody').find('#formul-info').val());
                     console.log($(this).closest('tbody').find('.control--select--button-inner').text());
@@ -169,18 +160,16 @@ define(['jquery',
                         $(this).closest('tbody').find('#buttonUpdateFormul').hide();
                     }
                 });
-                
+
                 $(this).find('#buttonUpdateFormul').on('click', function () {
                     if(widgetHelpers.validateFormul($(this).closest('tbody').find('#formul-info').val(), fieldsNames,
                                                     $(this).closest('tbody').find('.control--select--button-inner').text())){
-                        alert('Формула обновлена');
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
-                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode);
+                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode,json);
                         widgetSettings.save($(this).closest('tbody').find('.control--select--button').attr('data-value'),
-                                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()), wcode)
+                                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()), wcode, json)
                     }
                     else{
-                        alert("Не правильное оформление");
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(255,0,0)')
                     }
                 })
@@ -192,7 +181,6 @@ define(['jquery',
          */
         this.callbacks = {
             render: function () {
-                console.log('render');
                 settings = self.get_settings();
                 wcode = settings.widget_code;
                 //Подгружаем стили
@@ -205,20 +193,19 @@ define(['jquery',
                 return true
             },
             init: function () {
-                console.log('init');
+                self.setLocalFormulas()
                 return true
             },
             bind_actions: function () {
-                console.log('bind_action');
-                if(self.system().area == 'lcard'){
-                    widgetLCard.createAction(wcode);
+                if(self.system().area === 'lcard'){
+                    widgetLCard.createAction(formulas);
                 }
                 return true;
             },
             advancedSettings: function() {
-                console.log('advanced');
                 self.getFormulField();
                 self.getFormulsList();
+
                 return true;
             },
             settings: function () {

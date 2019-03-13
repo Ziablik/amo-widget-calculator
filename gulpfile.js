@@ -1,56 +1,51 @@
-var gulp = require("gulp"),
-  zip = require("gulp-zip"),
-  copy = require("gulp-copy"),
-  debug = require("gulp-debug"),
-  watch = require("gulp-watch"),
-  clean = require("gulp-clean"),
-  sass = require("gulp-sass"),
-  buildFiles = ["i18n/**/*", "images/**/*", "js/**/*", "src/**/**/*", "templates/**/*", "css/*",
-    "manifest.json", "script.js", 'style.css'];
+const { src, watch, series, dest } = require('gulp');
+const debug = require('gulp-debug');
+const clean = require('gulp-clean');
+const sass = require("gulp-sass");
+const copy = require("gulp-copy");
+const zip = require("gulp-zip");
+const uglify = require('gulp-uglify-es').default;
 
-/**
- * Deletes widget directory and widget zip file
- */
-gulp.task("clean_up", function () {
-  return gulp.src(["widget", "widget.zip"])
-  .pipe(debug({title: "Deleting"}))
-  .pipe(clean({force: true}))
-});
+const buildFiles = ["i18n/**/*", "images/**/*", "js/**/*", "templates/**/*", "css/*", "manifest.json", "script.js", 'style.css'];
 
-/**
- * Compiles sass
- * @depends sass clean_up
- */
-gulp.task("sass", function () {
-  gulp.src("style.scss")
-  .pipe(sass().on("error", sass.logError))
-  .pipe(gulp.dest(""));
-});
 
-/**
- * Copies widget files to build directory
- * @depends clean_up task
- */
-gulp.task("build_widget", ["clean_up"], function () {
-  return gulp.src(buildFiles)
-  .pipe(debug({title: "Copying:"}))
-  .pipe(copy("widget"));
-});
+function clean_up(cb) {
+  return src(["widget", "widget.zip", "style.css"], {allowEmpty: true})
+    .pipe(debug({title: "Deleting"}))
+    .pipe(clean({force: true}))
+}
 
-/**
- *  Zips build directory
- *  @depends build_widget task
- */
-gulp.task("zip_widget", ["build_widget"], function () {
-  return gulp.src("widget/**/*")
-  .pipe(debug({title: "Zipping:"}))
-  .pipe(zip("widget.zip"))
-  .pipe(gulp.dest(""));
-});
+function sass_load (cb) {
+  return src("style.scss")
+    .pipe(debug({title: "Styling"}))
+    .pipe(sass().on("error", sass.logError))
+    .pipe(dest("./"))
+}
+function minimize(cb) {
+  return src("src/**/**/*.js")
+    .pipe(debug({title: "Minimize"}))
+    .pipe(uglify())
+    .pipe(dest("./widget/src/"))
+}
 
-gulp.task("watch", function () {
-  gulp.watch("style.scss", ["sass"]);
-  gulp.watch(buildFiles, ["zip_widget"])
-});
+function copy_build (cb) {
+  return src(buildFiles)
+    .pipe(debug({title: "Copying"}))
+    .pipe(copy("widget"))
+}
 
-gulp.task("default", ["watch"]);
+function zip_widget (cb) {
+  return src("widget/**/*")
+    .pipe(debug({title: "Zipping"}))
+    .pipe(zip("widget.zip"))
+    .pipe(dest("./"));
+}
+
+function watching (cb) {
+  watch("style.scss", series(sass_load))
+  watch(buildFiles, series(clean_up, copy_build, zip_widget))
+}
+
+exports.build = series(clean_up, minimize, sass_load, copy_build)
+exports.zip_widget = series(clean_up, minimize, sass_load, copy_build, zip_widget)
+exports.default = watching

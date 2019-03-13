@@ -28,18 +28,18 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
         },
 
         //Функция выбирает те поля, для которых нужно создать обработчик
-        createAction : function (wcode) {
-            var formuls = widgetSettings.get(wcode),
-                arrFormul;
+        createAction : function (formuls) {
+            var arrFormul;
             delete formuls['login'];
             console.log(formuls);
 
             for(key in formuls){
-                arrFormul = widgetHelpers.parseFormulId(formuls[key]);
+                var id = formuls[key].codeField
+                arrFormul = widgetHelpers.parseFormulId(formuls[key].formul);
                 console.log(arrFormul);
                 for(i=0; i<arrFormul.length; i++){
                     if(arrFormul[i].length > 1){
-                        this.fieldAction(key, arrFormul[i], formuls[key]);
+                        this.fieldAction(id, arrFormul[i], formuls[key].formul);
                     }
                 }
             }

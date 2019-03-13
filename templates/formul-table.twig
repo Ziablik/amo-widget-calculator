@@ -6,7 +6,7 @@
         <tbody id="table--formul">
             <tr>
                 <td class="content__account__settings__title" style="width: 25%">Имя поля</td>
-                <td>{% include 'templates/select.twig' with {items:fieldsNames, id:'selectResultField'}%}</td>
+                <td>{% include 'templates/select.twig' with {items:fieldsNames, id:'selectResultField', selected: selectedField}%}</td>
             </tr>
             <tr>
                 <td class="content__account__settings__title" style="width: 25%">Формула</td>

@@ -9,13 +9,10 @@
     "interface_version": 2,
     "init_once": true,
     "locale":[
-      "ru"
+      "ru",
+      "en"
     ],
-    "installation": true,
-    "support": {
-      "link": "https://www.amocrm.com",
-      "email": "ziablikl@mail.ru"
-    }
+    "installation": true
   },
   "locations":[
     "settings",
@@ -23,7 +20,12 @@
     "advanced_settings"
   ],
   "settings":{
-    "login":{
+    "json":{
+      "name": "settings.login",
+      "type": "text",
+      "required": false
+    },
+    "id":{
       "name": "settings.login",
       "type": "text",
       "required": false

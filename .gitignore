@@ -1,2 +1,6 @@
 /node_modules/
 .idea/
+/server/*
+/widget/*
+widget.zip
+style.css
