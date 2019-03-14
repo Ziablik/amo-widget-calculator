@@ -1,0 +1,37 @@
+{# @var  #}
+<div class="safety_settings__section_new monitoring-settings__section">
+    <div class="safety_settings__section_head_new_title">Создать новую формулу</div>
+    <table class="content__account__settings">
+        <tbody>
+            <tr>
+                <td style="width: 15%;">
+                    {% include 'templates/select.twig' with {fieldsNames, id:'addNewField', selected: fieldsNames[0]}%}
+                </td>
+                <td style="width: 14px;"></td>
+                <td>
+                    <button class="button-input" id="buttonAddFieldToFormula">
+                        <span class="button-input-inner__text">Добавить в формулу</span>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td id="selectField">
+                    {% include 'templates/select.twig' with {fieldsNames, id:'mainFormulaField', selected: fieldsNames[0]}%}
+                </td>
+                <td style="width: 14px; text-align: center; vertical-align: middle;">=</td>
+                <td style="width: 100%;">
+                    <input class="text-input" id="formulaField" style="width: 100%"/>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td>
+                    <button class="button-input button-input_blue" id="buttonSaveFormula">
+                        <span class="button-input-inner__text">Создать формулу</span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </div>

@@ -7,11 +7,15 @@ define(['jquery',
      * @returns {Widget}
      * @constructor
      */
-    var Widget = function () {
+    var AlarmCrmCalculatorWidget = function () {
         var self = this;
         system = self.system;
-        var formulas;
+        var isInited = false; // Bool на первый запуск виджета
+        var formulas; // Массив всех формул
+        var wId; // ID виджета
+        var fieldsNames; // Кастомные поля
         var wcode, settings, users, wurl, enabled;
+
         /**
          * Функция для загрузки шаблонов по из папки templates
          * @param template
@@ -35,50 +39,98 @@ define(['jquery',
          */
         self.setLocalFormulas = function () {
             formulas = widgetSettings.getFormulas(wcode)
-        }
+        };
 
-        this.getFormulField = function () {
-            var fieldsNames = widgetHelpers.getFieldsNames();
-            //Выбор кастомного поля, чтобы создать для него формулу
-            $('#work-area-' + wcode).append('<div id="formul--creating" class="safety_settings__section_new monitoring-settings__section"></div>');
-
-            self.getTemplate('formul-creating', {}, function (data) {
+        /**
+         * Метод рендерит поля для добавления формул
+         * Добавляет листнеры на ивенты добавления формул
+         */
+        self.addNewFormulaRender = function() {
+            var workArea = $('#work-area-' + wcode);
+            var formulaInput;
+            self.getTemplate('add-new-formula', {}, function (data) {
                 var html = data.render({
                     fieldsNames
                 });
-                $('#formul--creating').append(html);
-                //Не добавляется style для td#saveButton
-                $('#formulField').css('width', '100%');
+                workArea.append(html)
+            });
 
 
+            // Ивент добавления поля в форму
+            $(document).on('click', '#buttonAddFieldToFormula', function () {
+                formulaInput = $('#formulaField');
+                formulaInput.val(formulaInput.val() + $(this).closest('tr').find('.control--select--list--item-selected span').text());
+            });
 
-                $('#buttonAddField span').append('Добавить в формулу');
-                $('#buttonAddField').on('click', function () {
-                    $('#formulField').val($('#formulField').val() + $(this).closest('tr').find('.control--select--button-inner').text());
-                });
+            // Ивент сохранения формулы
+            $(document).on('click', '#buttonSaveFormula', function () {
+                formulaInput = $('#formulaField');
 
-                $('#buttonSaveFormul span').append('Создать формулу');
-                $('#buttonSaveFormul').css('background', '#4c8bf7').css('color', '#fff');
+                if(widgetHelpers.validateFormul(
+                    formulaInput.val(),
+                    fieldsNames,
+                    $('#mainFormulaField').parent().find('.control--select--list--item-selected span').text()
+                )) {
+                    formulaInput.css('border', '1px solid #dbdedf');
 
-                $('#buttonSaveFormul').on('click', function () {
-                    if(widgetHelpers.validateFormul($('#formulField').val(), fieldsNames, $(this).closest('tbody').find('#mainField').parent().find('.control--select--button-inner').text())){
-                        $('#formulField').css('border', '1px solid rgb(0,255,0)');
+                    widgetSettings.save(
+                        $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
+                        widgetHelpers.convertFormulToID(formulaInput.val()),
+                        wcode,
+                        formulas,
+                        wId
+                    );
 
-                        widgetSettings.save(
-                            $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
-                            widgetHelpers.convertFormulToID($('#formulField').val()),
-                            wcode,
-                            formulas,
-                            settings.id
-                        )
-                    }
-                    else{
-                        $('#formulField').css('border', '1px solid rgb(255,0,0)')
-                    }
-                })
+                    self.setLocalFormulas(); // Устанавливаем новые значения формул
+                } else{
+                    formulaInput.css('border', '1px solid rgb(255,0,0)')
+                }
             });
         };
 
+        /**
+         * Метод рендерит все текущие формулы
+         * Добавляет листнеры на ивенты добавления формул
+         */
+        self.formulasTableRender = function () {
+            console.log(formulas)
+            if(formulas.length > 0) {
+                $.each(formulas, function (key, el) {
+                    var formul = widgetHelpers.convertFormulToName(el.formul);
+                    var fieldName = widgetHelpers.convertIDToName(el.codeField);
+
+                    self.getTemplate('formula-table', {}, function (date) {
+                        var html = date.render({
+                            fieldsNames,
+                            formul,
+                            fieldName,
+                            selectedField: {id: el.codeField, option: fieldName},
+                            key
+                        });
+
+                        $('#work-area-' + wcode).append(html);
+                    });
+                });
+
+                $(document).on('click', 'button.spoiler-formula', function () {
+                    $(this).parent().children('table.content__account__settings').toggle('normal');
+                });
+
+                $(document).on('click', '.buttonDeleteFormula', function () {
+                    if (confirm('Вы уверены, что хотите удалить формулу?')) {
+                        console.log($(this).attr('field-code'));
+                        widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
+                        $(this).closest('div').detach();
+                        self.setLocalFormulas(); // Устанавливаем новые значения формул
+                    }
+                });
+            }
+        };
+
+        /**
+         * DEPRECATED
+         * TODO: Переделать в ноывй метод
+         */
         //Функция отрисовывает все существующие формулы на странице расширненных настроек
         this.getFormulsList = function () {
             var fieldsNames = widgetHelpers.getFieldsNames();
@@ -177,35 +229,57 @@ define(['jquery',
         };
 
         /**
+         * Метод рендерит дополнительные настройки
+         */
+        self.advancedSettingsRender = function () {
+            var body = $('body');
+            body.addClass('page-loading'); // Показываем лоадер
+            self.addNewFormulaRender(); // Рендерим форму добавления формулы
+            self.formulasTableRender(); // Рендерим все формулы
+            body.removeClass('page-loading'); // Убираем лоадер
+        };
+
+        /**
          * @type {{render: (function(): boolean), init: (function(): boolean), bind_actions: (function(): boolean), settings: (function(): boolean), onSave: (function(): boolean), destroy: PandoraLoaderWidget.callbacks.destroy}}
          */
         this.callbacks = {
             render: function () {
                 settings = self.get_settings();
                 wcode = settings.widget_code;
-                //Подгружаем стили
+                // Подгрузка локально или из архива
                 if (FreePackWidgetEnv === 'dev') {
                     wurl = 'https://localhost:8080/amo-widget-calculator'
                 } else {
                     wurl = '/upl/' + wcode + '/widget'
                 }
 
+                // Записываем локальные данные при инициализации виджета
+                if(isInited === false) {
+                    self.setLocalFormulas()
+                    wId = self.params.id;
+                    fieldsNames = widgetHelpers.getFieldsNames();
+
+                    isInited = true
+                }
+
+                // Если мы вернулись в окно доп настроек, отрендерить формулы и тп, callbacks.advancedSettings не отрабатывает при повторном переходе
+                if(self.system().area === 'advanced_settings') {
+                    self.advancedSettingsRender()
+                }
+
+                console.log(true)
                 return true
             },
             init: function () {
-                self.setLocalFormulas()
                 return true
             },
             bind_actions: function () {
-                if(self.system().area === 'lcard'){
+                if(self.system().area === 'lcard') {
                     widgetLCard.createAction(formulas);
                 }
                 return true;
             },
             advancedSettings: function() {
-                self.getFormulField();
-                self.getFormulsList();
-
                 return true;
             },
             settings: function () {
@@ -220,5 +294,6 @@ define(['jquery',
         };
         return this
     };
-    return Widget
+
+    return AlarmCrmCalculatorWidget
 });

@@ -5,10 +5,9 @@
         "description":"Описание рыба, тест"
     },
     "settings":{
-        "login":"Логин",
-        "id": "id"
+        "json":"Json"
     },
     "advanced":{
-        "title": "Формулы"
+        "title": "Конструктор формул"
     }
 }

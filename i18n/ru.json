@@ -2,11 +2,10 @@
     "widget":{
         "name":"Калькулятор",
         "short_description":"Создание формул",
-        "description":""
+        "description":"Описание рыба, тест"
     },
     "settings":{
-        "login":"Логин",
-        "id": "id"
+        "json":"Json"
     },
     "advanced":{
         "title": "Конструктор формул"

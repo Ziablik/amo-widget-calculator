@@ -4,7 +4,7 @@ define(['jquery'], function ($) {
     var widgetSettings = {
 
         getFormulas : function (wcode) {
-            var formulas;
+            var formulas = [];
             $.ajax({
                 type: 'POST',
                 cache: false,
@@ -16,6 +16,9 @@ define(['jquery'], function ($) {
                     var settings = JSON.parse(data.widgets[wcode.toString()].settings)
                     if(settings.json && settings.json !== '{}') {
                         formulas = JSON.parse(settings.json)
+                        if (typeof formulas.length < 1) {
+                            formulas = []
+                        }
                     } else {
                         formulas = []
                     }
@@ -26,15 +29,19 @@ define(['jquery'], function ($) {
         },
 
         save : function (codeField, formul, wcode, data, id) {
-            console.log(data);
             data.push({codeField, formul});
             this.set(data, wcode, id)
         },
 
         delete : function (codeField, wcode, data, id) {
+            console.log(codeField)
             try {
-                delete data[codeField];
+                data = $.grep(data, function (el) {
+                    return el.codeField !== codeField
+                });
             } catch (e) {}
+
+            console.log(data)
             this.set(data, wcode, id)
         },
 
@@ -45,7 +52,7 @@ define(['jquery'], function ($) {
                     id: id,
                     code: wcode,
                     widget_active: 'Y',
-                    settings: { json: JSON.stringify(data) }
+                    settings: { json: data ? JSON.stringify(data) : '' }
                 });
             } catch (e) {
                 console.log(e)

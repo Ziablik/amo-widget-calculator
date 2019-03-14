@@ -21,12 +21,7 @@
   ],
   "settings":{
     "json":{
-      "name": "settings.login",
-      "type": "text",
-      "required": false
-    },
-    "id":{
-      "name": "settings.login",
+      "name": "settings.json",
       "type": "text",
       "required": false
     }

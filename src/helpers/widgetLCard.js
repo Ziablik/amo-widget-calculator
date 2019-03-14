@@ -7,7 +7,7 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
             arrFormul = widgetHelpers.parseFormulId(formul);
             for(i=0; i<arrFormul.length; i++){
                 if(arrFormul[i].length > 1){
-                    if(arrFormul[i] == 'lead_card_budget'){
+                    if(arrFormul[i] === 'lead_card_budget'){
                         arrFormul[i] = $('#'+arrFormul[i]).val().replace(/\s/g, '');
                         formulValue = formulValue + arrFormul[i];
                     }
@@ -21,7 +21,15 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
                 }
             }
             try {
-                $('[name="CFV['+ mainField +']"]').val(eval(formulValue));
+                console.log(eval(formulValue));
+                if(mainField === 'lead_card_budget'){
+                    var budget = $('#lead_card_budget');
+                    $('[name="lead[PRICE]"]').val(eval(formulValue));
+                    budget.val(eval(formulValue));
+                    budget.trigger('input')
+                } else {
+                    $('[name="CFV[' + mainField + ']"]').val(eval(formulValue));
+                }
             } catch (err) {
                 console.log('Заполните поля, учавствующие в формуле')
             }
@@ -30,13 +38,10 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
         //Функция выбирает те поля, для которых нужно создать обработчик
         createAction : function (formuls) {
             var arrFormul;
-            delete formuls['login'];
-            console.log(formuls);
 
             for(key in formuls){
                 var id = formuls[key].codeField
                 arrFormul = widgetHelpers.parseFormulId(formuls[key].formul);
-                console.log(arrFormul);
                 for(i=0; i<arrFormul.length; i++){
                     if(arrFormul[i].length > 1){
                         this.fieldAction(id, arrFormul[i], formuls[key].formul);
@@ -47,13 +52,13 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
 
         //Создает обработчик для поля
         fieldAction : function (mainField, actionField, formul) {
-            if(actionField == 'lead_card_budget'){
-                $('#' + actionField).on('keyup', function () {
+            if(actionField === 'lead_card_budget'){
+                $(document).on('keyup', '#' + actionField, function () {
                     widgetLCard.calculate(mainField, formul);
                 })
             }
             else {
-                $('[name="CFV[' + actionField + ']"]').on('keyup', function () {
+                $(document).on('keyup', '[name="CFV[' + actionField + ']"]', function () {
                     widgetLCard.calculate(mainField, formul);
                 })
             }
