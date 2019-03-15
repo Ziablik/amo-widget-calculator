@@ -18,9 +18,9 @@
             <tr>
                 <td></td>
                 <td>
-                    {#<button class="button-input button-input_red" id="buttonUpdateFormul">#}
-                        {#<span class="button-input-inner__text">Изменить формулу</span>#}
-                    {#</button>#}
+                    <button class="button-input button-input_red buttonUpdateFormula" formula-key="{{ key }}" field-code="{{ selectedField.id }}">
+                        <span class="button-input-inner__text">Изменить формулу</span>
+                    </button>
 
                     <button class="button-input button-input_red buttonDeleteFormula" formula-key="{{ key }}" field-code="{{ selectedField.id }}">
                         <span class="button-input-inner__text">Удалить формулу</span>

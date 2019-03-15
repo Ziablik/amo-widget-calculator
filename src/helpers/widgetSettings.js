@@ -34,25 +34,27 @@ define(['jquery'], function ($) {
         },
 
         delete : function (codeField, wcode, data, id) {
-            console.log(codeField)
             try {
                 data = $.grep(data, function (el) {
                     return el.codeField !== codeField
                 });
             } catch (e) {}
-
-            console.log(data)
             this.set(data, wcode, id)
         },
 
         set : function (data, wcode, id) {
             try {
-                $.post('/ajax/widgets/edit', {
-                    action: 'edit',
-                    id: id,
-                    code: wcode,
-                    widget_active: 'Y',
-                    settings: { json: data ? JSON.stringify(data) : '' }
+                $.ajax({
+                    url: '/ajax/widgets/edit',
+                    type: "POST",
+                    async: false,
+                    data: {
+                        action: 'edit',
+                        id: id,
+                        code: wcode,
+                        widget_active: 'Y',
+                        settings: { json: data ? JSON.stringify(data) : '' }
+                    }
                 });
             } catch (e) {
                 console.log(e)

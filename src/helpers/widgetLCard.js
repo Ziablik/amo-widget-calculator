@@ -21,7 +21,6 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
                 }
             }
             try {
-                console.log(eval(formulValue));
                 if(mainField === 'lead_card_budget'){
                     var budget = $('#lead_card_budget');
                     $('[name="lead[PRICE]"]').val(eval(formulValue));

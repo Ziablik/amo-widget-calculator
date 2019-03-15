@@ -17,7 +17,6 @@ define(['jquery'], function ($) {
 
         //Замена названий полей в формуле на id полей
         convertFormulToID : function (formulByField) {
-            console.log(formulByField);
             var arrFormul = this.parseFormul(formulByField),
                 formul = '';
 
@@ -51,7 +50,6 @@ define(['jquery'], function ($) {
 
         //Конвертировать имя поля на id поля
         convertNameToID : function (fieldName) {
-            // console.log(fieldName);
             var fields,
                 field;
             $.ajax({
@@ -140,7 +138,6 @@ define(['jquery'], function ($) {
 
         //Валидация формулы, mainField не должен повторяться в тексте формулы, все поля используемые в формуле должны существовать
         validateFormul : function (formul, fieldsNames, mainField) {
-            // console.log(formul, fieldsNames, mainField);
             var arrFormul = this.parseFormul(formul);
             if(!arrFormul){
                 return false

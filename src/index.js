@@ -38,7 +38,7 @@ define(['jquery',
          * Метод устанавливает формулы из json строки в массив
          */
         self.setLocalFormulas = function () {
-            formulas = widgetSettings.getFormulas(wcode)
+            formulas = widgetSettings.getFormulas(wcode);
         };
 
         /**
@@ -93,7 +93,6 @@ define(['jquery',
          * Добавляет листнеры на ивенты добавления формул
          */
         self.formulasTableRender = function () {
-            console.log(formulas)
             if(formulas.length > 0) {
                 $.each(formulas, function (key, el) {
                     var formul = widgetHelpers.convertFormulToName(el.formul);
@@ -118,10 +117,35 @@ define(['jquery',
 
                 $(document).on('click', '.buttonDeleteFormula', function () {
                     if (confirm('Вы уверены, что хотите удалить формулу?')) {
-                        console.log($(this).attr('field-code'));
                         widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
                         $(this).closest('div').detach();
                         self.setLocalFormulas(); // Устанавливаем новые значения формул
+                    }
+                });
+
+                $(document).on('click', '.buttonUpdateFormula', function () {
+                    if(widgetHelpers.validateFormul(
+                        $(this).closest('tbody').find('#formul-info').val(),
+                        fieldsNames,
+                        $(this).closest('tbody').find('.control--select--button-inner').text()
+                    )){
+                        $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
+                        widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
+                        self.setLocalFormulas();
+                        widgetSettings.save(
+                            $(this).closest('tbody').find('.control--select--list--item-selected').attr('data-value'),
+                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()),
+                            wcode,
+                            formulas,
+                            wId
+                        );
+                        self.setLocalFormulas();
+                        $(this).closest('div')
+                            .find('.spoiler-formula')
+                            .text($(this).closest('tbody').find('.control--select--button-inner').text())
+                    }
+                    else{
+                        $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(255,0,0)');
                     }
                 });
             }
@@ -134,13 +158,12 @@ define(['jquery',
         //Функция отрисовывает все существующие формулы на странице расширненных настроек
         this.getFormulsList = function () {
             var fieldsNames = widgetHelpers.getFieldsNames();
-
             $.each(formulas, function (key, el) {
                 var formul = widgetHelpers.convertFormulToName(el.formul);
                 var fieldName = widgetHelpers.convertIDToName(el.codeField);
 
 
-                self.getTemplate('formul-table', {}, function (date) {
+                self.getTemplate('formula-table', {}, function (date) {
                     var html = date.render({
                         fieldsNames,
                         formul,
@@ -151,7 +174,7 @@ define(['jquery',
                     console.log('template');
                     $('#work-area-' + wcode).append(html);
                 });
-            })
+            });
 
 
             $('button#spoiler').each(function () {
@@ -175,7 +198,6 @@ define(['jquery',
                 $(this).find('#buttonDeleteFormul').find('span').append('Удалить формулу');
                 $(this).find('#buttonDeleteFormul').on('click', function () {
                     if(confirm('Вы уверены, что хотите удалить формулу?')){
-                        console.log($(this).closest('div').find('#spoiler').text());
                         widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode);
                         $(this).closest('div').detach();
                         alert('Формула удалена');
@@ -202,8 +224,6 @@ define(['jquery',
                 });
 
                 $(this).find('#selectResultField').on('change', function () {
-                    console.log($(this).closest('tbody').find('#formul-info').val());
-                    console.log($(this).closest('tbody').find('.control--select--button-inner').text());
                     if($(this).closest('tbody').find('#formul-info').val() != formulText ||
                         fieldText != $(this).closest('tbody').find('.control--select--button-inner').text()){
                         $(this).closest('tbody').find('#buttonUpdateFormul').show();
@@ -217,7 +237,7 @@ define(['jquery',
                     if(widgetHelpers.validateFormul($(this).closest('tbody').find('#formul-info').val(), fieldsNames,
                                                     $(this).closest('tbody').find('.control--select--button-inner').text())){
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
-                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode,json);
+                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode, json);
                         widgetSettings.save($(this).closest('tbody').find('.control--select--button').attr('data-value'),
                                             widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()), wcode, json)
                     }
