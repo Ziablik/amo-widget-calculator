@@ -175,7 +175,22 @@ define(['jquery'], function ($) {
 
             return formula
         }
-};
+
+        /**
+         * Метод возвращает true если в settings'е нет сохраняемой формулы
+         * @param codeField
+         * @param formulas
+         * @return {boolean}
+         */
+        checkIsFormula: function (codeField, formulas) {
+            for(i in formulas){
+                if(formulas[i]['codeField'] === codeField){
+                    return false
+                }
+            }
+            return true
+        }
+    };
 
     return widgetHelpers
 });

@@ -70,6 +70,9 @@ define(['jquery',
                     formulaInput.val(),
                     fieldsNames,
                     $('#mainFormulaField').parent().find('.control--select--list--item-selected span').text()
+                ) && widgetHelpers.checkIsFormula(
+                    $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
+                    formulas
                 )) {
                     formulaInput.css('border', '1px solid #dbdedf');
 
