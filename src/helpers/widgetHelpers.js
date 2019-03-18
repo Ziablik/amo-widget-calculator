@@ -140,19 +140,19 @@ define(['jquery'], function ($) {
         validateFormul : function (formul, fieldsNames, mainField) {
             var arrFormul = this.parseFormul(formul);
             if(!arrFormul){
-                return false
+                return 'Не правильно заполнено поле формулы'
             }
             for(i=0; i<arrFormul.length; i++){
                 if(arrFormul[i].length > 1){
                     if(arrFormul[i] == mainField){
-                        return false
+                        return 'Не правильно заполнено поле формулы'
                     }
                     for(j=0; j<fieldsNames.length; j++){
                         if(arrFormul[i] == fieldsNames[j].option){
                             break;
                         }
                         else if(j == fieldsNames.length-1){
-                            return false;
+                            return 'Не правильно заполнено поле формулы';
                         }
                     }
                 }
@@ -185,7 +185,7 @@ define(['jquery'], function ($) {
         checkIsFormula: function (codeField, formulas) {
             for(i in formulas){
                 if(formulas[i]['codeField'] === codeField){
-                    return false
+                    return 'Формула для выбранного поля уже существует'
                 }
             }
             return true

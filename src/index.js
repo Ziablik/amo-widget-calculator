@@ -39,7 +39,6 @@ define(['jquery',
          */
         self.setLocalFormulas = function () {
             formulas = widgetSettings.getFormulas(wcode);
-            console.log(formulas);
         };
 
         /**
@@ -68,47 +67,76 @@ define(['jquery',
             $(document).on('click', '#buttonSaveFormula', function () {
                 formulaInput = $('#formulaField');
 
-                if(widgetHelpers.validateFormul(
+                if(typeof widgetHelpers.validateFormul(
                     formulaInput.val(),
                     fieldsNames,
                     $('#mainFormulaField').parent().find('.control--select--list--item-selected span').text()
-                ) && widgetHelpers.checkIsFormula(
-                    $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
-                    formulas
-                )) {
-                    formulaInput.css('border', '1px solid #dbdedf');
-                    body.addClass('page-loading');
-                    widgetSettings.save(
+                ) === 'boolean') {
+                    if(typeof widgetHelpers.checkIsFormula(
                         $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
-                        widgetHelpers.convertFormulToID(formulaInput.val()),
-                        wcode,
-                        formulas,
-                        wId
-                    );
-                    body.removeClass('page-loading');
-                    var fieldName = $(this).closest('tbody')
-                            .find('#selectField')
-                            .find('.control--select--button-inner').text(),
-                        selectedId = $(this).closest('tbody')
-                            .find('#selectField')
-                            .find('.control--select--list--item-selected').attr('data-value'),
-                        formul = formulaInput.val();
+                        formulas
+                    ) === "boolean"){
+                        formulaInput.css('border', '1px solid #dbdedf');
+                        body.addClass('page-loading');
+                        widgetSettings.save(
+                            $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
+                            widgetHelpers.convertFormulToID(formulaInput.val()),
+                            wcode,
+                            formulas,
+                            wId
+                        );
+                        body.removeClass('page-loading');
+                        var fieldName = $(this).closest('tbody')
+                                .find('#selectField')
+                                .find('.control--select--button-inner').text(),
+                            selectedId = $(this).closest('tbody')
+                                .find('#selectField')
+                                .find('.control--select--list--item-selected').attr('data-value'),
+                            formul = formulaInput.val();
 
-                    self.getTemplate('formula-table', {}, function (date) {
-                        var html = date.render({
-                            fieldsNames,
-                            formul,
-                            fieldName,
-                            selectedField: {id: selectedId, option: fieldName}
+                        self.getTemplate('formula-table', {}, function (date) {
+                            var html = date.render({
+                                fieldsNames,
+                                formul,
+                                fieldName,
+                                selectedField: {id: selectedId, option: fieldName}
+                            });
+                            $('#work-area-' + wcode).append(html);
                         });
-                        $('#work-area-' + wcode).append(html);
-                    });
 
-                    formulaInput.val('');
-                    self.setLocalFormulas(); // Устанавливаем новые значения формул
+                        formulaInput.val('');
+                        self.setLocalFormulas(); // Устанавливаем новые значения формул
+                    }
+                    else{
+                        self.modalErrorRender(widgetHelpers.checkIsFormula(
+                            $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
+                            formulas
+                        ), body);
+                        formulaInput.css('border', '1px solid rgb(255,0,0)')
+                    }
                 } else{
+                    self.modalErrorRender(widgetHelpers.validateFormul(
+                        formulaInput.val(),
+                        fieldsNames,
+                        $('#mainFormulaField').parent().find('.control--select--list--item-selected span').text()
+                    ), body);
                     formulaInput.css('border', '1px solid rgb(255,0,0)')
                 }
+            });
+        };
+
+        /**
+         * Метод рендерит модальное окно с ошибкой
+         */
+        self.modalErrorRender = function(textError, body) {
+            self.getTemplate('validate-modal', {}, function (date) {
+                var html = date.render(
+                    textError
+                );
+                body.append(html)
+            });
+            $(document).on('click', '.modal-body__close', function () {
+                $(this).closest('.modal-list').detach();
             });
         };
 
@@ -189,6 +217,8 @@ define(['jquery',
             self.formulasTableRender(); // Рендерим все формулы
             body.removeClass('page-loading'); // Убираем лоадер
         };
+
+
 
         /**
          * @type {{render: (function(): boolean), init: (function(): boolean), bind_actions: (function(): boolean), settings: (function(): boolean), onSave: (function(): boolean), destroy: PandoraLoaderWidget.callbacks.destroy}}
