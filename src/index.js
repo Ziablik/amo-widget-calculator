@@ -130,9 +130,9 @@ define(['jquery',
          */
         self.modalErrorRender = function(textError, body) {
             self.getTemplate('validate-modal', {}, function (date) {
-                var html = date.render(
+                var html = date.render({
                     textError
-                );
+                });
                 body.append(html)
             });
             $(document).on('click', '.modal-body__close', function () {

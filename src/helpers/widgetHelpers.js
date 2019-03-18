@@ -95,7 +95,7 @@ define(['jquery'], function ($) {
                         bracketCount--;
                     }
                     if(bracketCount < 0){
-                        return false;
+                        return 'Вы забыли поставить открывающую скобку "("';
                     }
                     arrFormul.push(formul[i]);
                 }
@@ -106,10 +106,17 @@ define(['jquery'], function ($) {
                     }
                 }
             }
-            if((arrSymbols.indexOf(arrFormul[0]) == 0 || arrFormul[0].length > 1) && bracketCount == 0){
-                return arrFormul;
+            if(arrSymbols.indexOf(arrFormul[0]) == 0 || arrFormul[0].length > 1){
+                if(bracketCount == 0){
+                    return arrFormul;
+                }
+                else{
+                    return 'Не хватает закрывающей скобки ")" в формуле'
+                }
             }
-            return false;
+            else{
+                return 'Не правильно заполнено поле формулы'
+            }
         },
 
         //Функция парсит формулу в массив типа ['(', '421352', '+', '214643', ')', '*', '2']
@@ -139,20 +146,20 @@ define(['jquery'], function ($) {
         //Валидация формулы, mainField не должен повторяться в тексте формулы, все поля используемые в формуле должны существовать
         validateFormul : function (formul, fieldsNames, mainField) {
             var arrFormul = this.parseFormul(formul);
-            if(!arrFormul){
-                return 'Не правильно заполнено поле формулы'
+            if(typeof arrFormul === 'string'){
+                return arrFormul
             }
             for(i=0; i<arrFormul.length; i++){
                 if(arrFormul[i].length > 1){
                     if(arrFormul[i] == mainField){
-                        return 'Не правильно заполнено поле формулы'
+                        return 'Нельзя использовать имя поля, для которого создается формула'
                     }
                     for(j=0; j<fieldsNames.length; j++){
                         if(arrFormul[i] == fieldsNames[j].option){
                             break;
                         }
                         else if(j == fieldsNames.length-1){
-                            return 'Не правильно заполнено поле формулы';
+                            return 'Поле "'+ arrFormul[i] + '" не существует, либо у него другой тип';
                         }
                     }
                 }
@@ -166,12 +173,12 @@ define(['jquery'], function ($) {
          * @return {string}
          */
         getFormulaByCodeField: function (codeField) {
-            var formula = ''
+            var formula = '';
             $.each(formulas, function (key, el) {
                 if (el.codeField === codeField) {
                     formula = el.formul
                 }
-            })
+            });
 
             return formula
         },
