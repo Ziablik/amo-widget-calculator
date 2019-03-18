@@ -39,6 +39,7 @@ define(['jquery',
          */
         self.setLocalFormulas = function () {
             formulas = widgetSettings.getFormulas(wcode);
+            console.log(formulas);
         };
 
         /**
@@ -48,6 +49,7 @@ define(['jquery',
         self.addNewFormulaRender = function() {
             var workArea = $('#work-area-' + wcode);
             var formulaInput;
+            var body = $('body');
             self.getTemplate('add-new-formula', {}, function (data) {
                 var html = data.render({
                     fieldsNames
@@ -75,7 +77,7 @@ define(['jquery',
                     formulas
                 )) {
                     formulaInput.css('border', '1px solid #dbdedf');
-
+                    body.addClass('page-loading');
                     widgetSettings.save(
                         $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
                         widgetHelpers.convertFormulToID(formulaInput.val()),
@@ -83,6 +85,24 @@ define(['jquery',
                         formulas,
                         wId
                     );
+                    body.removeClass('page-loading');
+                    var fieldName = $(this).closest('tbody')
+                            .find('#selectField')
+                            .find('.control--select--button-inner').text(),
+                        selectedId = $(this).closest('tbody')
+                            .find('#selectField')
+                            .find('.control--select--list--item-selected').attr('data-value'),
+                        formul = formulaInput.val();
+
+                    self.getTemplate('formula-table', {}, function (date) {
+                        var html = date.render({
+                            fieldsNames,
+                            formul,
+                            fieldName,
+                            selectedField: {id: selectedId, option: fieldName}
+                        });
+                        $('#work-area-' + wcode).append(html);
+                    });
 
                     formulaInput.val('');
                     self.setLocalFormulas(); // Устанавливаем новые значения формул
@@ -97,10 +117,11 @@ define(['jquery',
          * Добавляет листнеры на ивенты добавления формул
          */
         self.formulasTableRender = function () {
+            var body = $('body');
             if(formulas.length > 0) {
                 $.each(formulas, function (key, el) {
-                    var formul = widgetHelpers.convertFormulToName(el.formul);
-                    var fieldName = widgetHelpers.convertIDToName(el.codeField);
+                    var formul = widgetHelpers.convertFormulToName(el.formul),
+                        fieldName = widgetHelpers.convertIDToName(el.codeField);
 
                     self.getTemplate('formula-table', {}, function (date) {
                         var html = date.render({
@@ -108,7 +129,6 @@ define(['jquery',
                             formul,
                             fieldName,
                             selectedField: {id: el.codeField, option: fieldName},
-                            key
                         });
 
                         $('#work-area-' + wcode).append(html);
@@ -121,9 +141,11 @@ define(['jquery',
 
                 $(document).on('click', '.buttonDeleteFormula', function () {
                     if (confirm('Вы уверены, что хотите удалить формулу?')) {
+                        body.addClass('page-loading');
                         widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
                         $(this).closest('div').detach();
                         self.setLocalFormulas(); // Устанавливаем новые значения формул
+                        body.removeClass('page-loading');
                     }
                 });
 
@@ -134,6 +156,7 @@ define(['jquery',
                         $(this).closest('tbody').find('.control--select--button-inner').text()
                     )){
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
+                        body.addClass('page-loading');
                         widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
                         self.setLocalFormulas();
                         widgetSettings.save(
@@ -144,6 +167,7 @@ define(['jquery',
                             wId
                         );
                         self.setLocalFormulas();
+                        body.removeClass('page-loading');
                         $(this).closest('div')
                             .find('.spoiler-formula')
                             .text($(this).closest('tbody').find('.control--select--button-inner').text())
