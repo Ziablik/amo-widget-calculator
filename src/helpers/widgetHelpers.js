@@ -174,7 +174,7 @@ define(['jquery'], function ($) {
             })
 
             return formula
-        }
+        },
 
         /**
          * Метод возвращает true если в settings'е нет сохраняемой формулы

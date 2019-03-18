@@ -4,7 +4,7 @@ define(['jquery',
     './helpers/widgetLCard.js',], function ($, widgetSettings, widgetHelpers, widgetLCard) {
     /**
      *
-     * @returns {Widget}
+     * @returns {AlarmCrmCalculatorWidget}
      * @constructor
      */
     var AlarmCrmCalculatorWidget = function () {
@@ -84,6 +84,7 @@ define(['jquery',
                         wId
                     );
 
+                    formulaInput.val('');
                     self.setLocalFormulas(); // Устанавливаем новые значения формул
                 } else{
                     formulaInput.css('border', '1px solid rgb(255,0,0)')
@@ -155,103 +156,6 @@ define(['jquery',
         };
 
         /**
-         * DEPRECATED
-         * TODO: Переделать в ноывй метод
-         */
-        //Функция отрисовывает все существующие формулы на странице расширненных настроек
-        this.getFormulsList = function () {
-            var fieldsNames = widgetHelpers.getFieldsNames();
-            $.each(formulas, function (key, el) {
-                var formul = widgetHelpers.convertFormulToName(el.formul);
-                var fieldName = widgetHelpers.convertIDToName(el.codeField);
-
-
-                self.getTemplate('formula-table', {}, function (date) {
-                    var html = date.render({
-                        fieldsNames,
-                        formul,
-                        fieldName,
-                        selectedField: el.codeField
-                    });
-
-                    console.log('template');
-                    $('#work-area-' + wcode).append(html);
-                });
-            });
-
-
-            $('button#spoiler').each(function () {
-                $(this).css('background', 'linear-gradient(to bottom,#fcfcfc 0%,#f8f8f9 100%)')
-                    .css('width', '100%').css('text-align', 'left');
-                $(this).parent().find('.control--select--button-inner').text($(this).text().substr(1));
-                $(this).on('click', function () {
-                    $(this).parent().children('table.content__account__settings').toggle('normal');
-                })
-            });
-
-            $('tbody#table--formul').each(function () {
-                $(this).append('<tr><td></td><td id="buttons"></td></tr>');
-                $(this).find('#buttons').css('text-align', 'right');
-
-                $(this).find('#buttons').append(self.render(
-                    {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
-                    {
-                        id: 'buttonDeleteFormul'   //указание id
-                    }));
-                $(this).find('#buttonDeleteFormul').find('span').append('Удалить формулу');
-                $(this).find('#buttonDeleteFormul').on('click', function () {
-                    if(confirm('Вы уверены, что хотите удалить формулу?')){
-                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode);
-                        $(this).closest('div').detach();
-                        alert('Формула удалена');
-                    }
-                });
-
-                $(this).find('#buttons').append(self.render(
-                    {ref: '/tmpl/controls/button.twig'},// объект data в данном случае содержит только ссылку на шаблон
-                    {
-                        id: 'buttonUpdateFormul'   //указание id
-                    }));
-                $(this).find('#buttonUpdateFormul').find('span').append('Обновить формулу');
-                $(this).find('#buttonUpdateFormul').hide();
-
-                var formulText = $(this).find('#formul-info').val(),
-                    fieldText = $(this).find('.control--select--button-inner').text();
-                $(this).find('#formul-info').on('keyup', function () {
-                    if($(this).val() != formulText || fieldText != $(this).closest('tbody').find('.control--select--button-inner').text()){
-                        $(this).closest('tbody').find('#buttonUpdateFormul').show();
-                    }
-                    else{
-                        $(this).closest('tbody').find('#buttonUpdateFormul').hide();
-                    }
-                });
-
-                $(this).find('#selectResultField').on('change', function () {
-                    if($(this).closest('tbody').find('#formul-info').val() != formulText ||
-                        fieldText != $(this).closest('tbody').find('.control--select--button-inner').text()){
-                        $(this).closest('tbody').find('#buttonUpdateFormul').show();
-                    }
-                    else{
-                        $(this).closest('tbody').find('#buttonUpdateFormul').hide();
-                    }
-                });
-
-                $(this).find('#buttonUpdateFormul').on('click', function () {
-                    if(widgetHelpers.validateFormul($(this).closest('tbody').find('#formul-info').val(), fieldsNames,
-                                                    $(this).closest('tbody').find('.control--select--button-inner').text())){
-                        $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
-                        widgetSettings.delete(widgetHelpers.convertNameToID($(this).closest('div').find('#spoiler').text().substr(1)), wcode, json);
-                        widgetSettings.save($(this).closest('tbody').find('.control--select--button').attr('data-value'),
-                                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()), wcode, json)
-                    }
-                    else{
-                        $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(255,0,0)')
-                    }
-                })
-            });
-        };
-
-        /**
          * Метод рендерит дополнительные настройки
          */
         self.advancedSettingsRender = function () {
@@ -290,22 +194,20 @@ define(['jquery',
                     self.advancedSettingsRender()
                 }
 
-                console.log(true)
                 return true
             },
             init: function () {
                 return true
             },
             bind_actions: function () {
-                if(self.system().area === 'lcard') {
-                    widgetLCard.createAction(formulas);
-                }
+                widgetLCard.createAction(formulas);
                 return true;
             },
             advancedSettings: function() {
                 return true;
             },
             settings: function () {
+                $('#widget_settings__fields_wrapper').hide();
                 return true
             },
             onSave: function () {
