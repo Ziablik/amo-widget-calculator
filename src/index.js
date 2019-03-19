@@ -39,6 +39,7 @@ define(['jquery',
          */
         self.setLocalFormulas = function () {
             formulas = widgetSettings.getFormulas(wcode);
+            console.log(formulas);
         };
 
         /**
@@ -47,7 +48,7 @@ define(['jquery',
          */
         self.addNewFormulaRender = function() {
             var workArea = $('#work-area-' + wcode);
-            var formulaInput;
+            var formulaInput , errorText;
             var body = $('body');
             self.getTemplate('add-new-formula', {}, function (data) {
                 var html = data.render({
@@ -66,7 +67,7 @@ define(['jquery',
             // Ивент сохранения формулы
             $(document).on('click', '#buttonSaveFormula', function () {
                 formulaInput = $('#formulaField');
-
+                errorText = $(this).closest('tbody').find('.errorText');
                 if(typeof widgetHelpers.validateFormul(
                     formulaInput.val(),
                     fieldsNames,
@@ -76,6 +77,7 @@ define(['jquery',
                         $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
                         formulas
                     ) === "boolean"){
+                        errorText.parent().hide('normal');
                         formulaInput.css('border', '1px solid #dbdedf');
                         body.addClass('page-loading');
                         widgetSettings.save(
@@ -108,18 +110,20 @@ define(['jquery',
                         self.setLocalFormulas(); // Устанавливаем новые значения формул
                     }
                     else{
-                        self.modalErrorRender(widgetHelpers.checkIsFormula(
+                        errorText.text(widgetHelpers.checkIsFormula(
                             $(this).closest('tbody').find('#selectField').find('.control--select--button').attr('data-value'),
                             formulas
-                        ), body);
+                        ));
+                        errorText.parent().show('normal');
                         formulaInput.css('border', '1px solid rgb(255,0,0)')
                     }
                 } else{
-                    self.modalErrorRender(widgetHelpers.validateFormul(
+                    errorText.text(widgetHelpers.validateFormul(
                         formulaInput.val(),
                         fieldsNames,
                         $('#mainFormulaField').parent().find('.control--select--list--item-selected span').text()
-                    ), body);
+                    ));
+                    errorText.parent().show('normal');
                     formulaInput.css('border', '1px solid rgb(255,0,0)')
                 }
             });
@@ -128,7 +132,7 @@ define(['jquery',
         /**
          * Метод рендерит модальное окно с ошибкой
          */
-        self.modalErrorRender = function(textError, body) {
+        self.modalRender = function(textError, body) {
             self.getTemplate('validate-modal', {}, function (date) {
                 var html = date.render({
                     textError
@@ -178,11 +182,13 @@ define(['jquery',
                 });
 
                 $(document).on('click', '.buttonUpdateFormula', function () {
-                    if(widgetHelpers.validateFormul(
+                    var errorText = $(this).closest('tbody').find('.errorText');
+                    if(typeof widgetHelpers.validateFormul(
                         $(this).closest('tbody').find('#formul-info').val(),
                         fieldsNames,
                         $(this).closest('tbody').find('.control--select--button-inner').text()
-                    )){
+                    ) === 'boolean'){
+                        errorText.parent().hide('normal');
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
                         body.addClass('page-loading');
                         widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
@@ -201,6 +207,12 @@ define(['jquery',
                             .text($(this).closest('tbody').find('.control--select--button-inner').text())
                     }
                     else{
+                        errorText.text(widgetHelpers.validateFormul(
+                            $(this).closest('tbody').find('#formul-info').val(),
+                            fieldsNames,
+                            $(this).closest('tbody').find('.control--select--button-inner').text()
+                        ));
+                        errorText.parent().show('normal');
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(255,0,0)');
                     }
                 });
