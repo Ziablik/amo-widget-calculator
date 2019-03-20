@@ -57,7 +57,6 @@ define(['jquery',
                 workArea.append(html)
             });
 
-
             // Ивент добавления поля в форму
             $(document).on('click', '#buttonAddFieldToFormula', function () {
                 formulaInput = $('#formulaField');
@@ -130,16 +129,28 @@ define(['jquery',
         };
 
         /**
-         * Метод рендерит модальное окно с ошибкой
+         * Метод рендерит модальное окно с подтверждением
          */
-        self.modalRender = function(textError, body) {
-            self.getTemplate('validate-modal', {}, function (date) {
+        self.modalRender = function(someText, body, button) {
+            self.getTemplate('modal', {}, function (date) {
                 var html = date.render({
-                    textError
+                    someText,
                 });
                 body.append(html)
             });
             $(document).on('click', '.modal-body__close', function () {
+                $(this).closest('.modal-list').detach();
+            });
+            $(document).on('click', '.buttonSuccess', function () {
+                $(this).closest('.modal-list').detach();
+                body.addClass('page-loading');
+                widgetSettings.delete(button.attr('field-code'), wcode, formulas, wId);
+                button.closest('div').detach();
+                self.setLocalFormulas(); // Устанавливаем новые значения формул
+                body.removeClass('page-loading');
+
+            });
+            $(document).on('click', '.buttonCancel', function () {
                 $(this).closest('.modal-list').detach();
             });
         };
@@ -172,13 +183,10 @@ define(['jquery',
                 });
 
                 $(document).on('click', '.buttonDeleteFormula', function () {
-                    if (confirm('Вы уверены, что хотите удалить формулу?')) {
-                        body.addClass('page-loading');
-                        widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
-                        $(this).closest('div').detach();
-                        self.setLocalFormulas(); // Устанавливаем новые значения формул
-                        body.removeClass('page-loading');
-                    }
+
+                    var someText = 'Вы уверены, что хотите удалить формулу?',
+                        buttonDelete = $(this);
+                    self.modalRender(someText, body, buttonDelete);
                 });
 
                 $(document).on('click', '.buttonUpdateFormula', function () {
