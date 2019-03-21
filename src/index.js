@@ -55,11 +55,31 @@ define(['jquery',
                 });
                 workArea.append(html)
             });
+            console.log(fieldsNames);
 
             // Ивент добавления поля в форму
             $(document).on('click', '#buttonAddFieldToFormula', function () {
                 formulaInput = $('#formulaField');
                 formulaInput.val(formulaInput.val() + $(this).closest('tr').find('.control--select--list--item-selected span').text());
+            });
+
+            var searchText = '';
+            
+            //Ивент вызывает список полей
+            $(document).on('keypress', '#formulaField', function (eventObject) {
+                if(eventObject.key === '@'){
+                    searchText = '';
+                    $(this).parent().find('ul').removeClass('control--select--list').addClass('control--select--list-opened')
+                }
+                else {
+                    searchText = searchText+eventObject.key;
+                    $(this).parent().find('span').each(function () {
+                        if($(this).text().toUpperCase().indexOf(searchText.toUpperCase()) === -1){
+                            $(this).parent().hide();
+                        }
+                        else $(this).parent().show();
+                    })
+                }
             });
 
             // Ивент сохранения формулы
