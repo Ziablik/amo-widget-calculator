@@ -39,7 +39,6 @@ define(['jquery',
          */
         self.setLocalFormulas = function () {
             formulas = widgetSettings.getFormulas(wcode);
-            console.log(formulas);
         };
 
         /**
@@ -131,7 +130,7 @@ define(['jquery',
         /**
          * Метод рендерит модальное окно с подтверждением
          */
-        self.modalRender = function(someText, body, button) {
+        self.modalRender = function(someText, body, button, eventType) {
             self.getTemplate('modal', {}, function (date) {
                 var html = date.render({
                     someText,
@@ -145,10 +144,22 @@ define(['jquery',
                 $(this).closest('.modal-list').detach();
                 body.addClass('page-loading');
                 widgetSettings.delete(button.attr('field-code'), wcode, formulas, wId);
-                button.closest('div').detach();
                 self.setLocalFormulas(); // Устанавливаем новые значения формул
+                if(eventType === 'update'){
+                    widgetSettings.save(
+                        button.closest('tbody').find('.control--select--list--item-selected').attr('data-value'),
+                        widgetHelpers.convertFormulToID(button.closest('tbody').find('#formul-info').val()),
+                        wcode,
+                        formulas,
+                        wId
+                    );
+                    self.setLocalFormulas();
+                    button.closest('div')
+                        .find('.spoiler-formula')
+                        .text(button.closest('tbody').find('.control--select--button-inner').text())
+                }
+                else button.closest('div').detach();
                 body.removeClass('page-loading');
-
             });
             $(document).on('click', '.buttonCancel', function () {
                 $(this).closest('.modal-list').detach();
@@ -186,11 +197,13 @@ define(['jquery',
 
                     var someText = 'Вы уверены, что хотите удалить формулу?',
                         buttonDelete = $(this);
-                    self.modalRender(someText, body, buttonDelete);
+                    self.modalRender(someText, body, buttonDelete, '');
                 });
 
                 $(document).on('click', '.buttonUpdateFormula', function () {
                     var errorText = $(this).closest('tbody').find('.errorText');
+                    var someText = 'Вы уверены, что хотите обновить формулу?',
+                        buttonUpdate = $(this);
                     if(typeof widgetHelpers.validateFormul(
                         $(this).closest('tbody').find('#formul-info').val(),
                         fieldsNames,
@@ -198,21 +211,7 @@ define(['jquery',
                     ) === 'boolean'){
                         errorText.parent().hide('normal');
                         $(this).closest('tbody').find('#formul-info').css('border', '1px solid rgb(0,255,0)');
-                        body.addClass('page-loading');
-                        widgetSettings.delete($(this).attr('field-code'), wcode, formulas, wId);
-                        self.setLocalFormulas();
-                        widgetSettings.save(
-                            $(this).closest('tbody').find('.control--select--list--item-selected').attr('data-value'),
-                            widgetHelpers.convertFormulToID($(this).closest('tbody').find('#formul-info').val()),
-                            wcode,
-                            formulas,
-                            wId
-                        );
-                        self.setLocalFormulas();
-                        body.removeClass('page-loading');
-                        $(this).closest('div')
-                            .find('.spoiler-formula')
-                            .text($(this).closest('tbody').find('.control--select--button-inner').text())
+                        self.modalRender(someText, body, buttonUpdate, 'update');
                     }
                     else{
                         errorText.text(widgetHelpers.validateFormul(
@@ -256,7 +255,7 @@ define(['jquery',
 
                 // Записываем локальные данные при инициализации виджета
                 if(isInited === false) {
-                    self.setLocalFormulas()
+                    self.setLocalFormulas();
                     wId = self.params.id;
                     fieldsNames = widgetHelpers.getFieldsNames();
 

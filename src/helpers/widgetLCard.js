@@ -13,6 +13,10 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
                     }
                     else{
                         arrFormul[i] = $('[name="CFV['+ arrFormul[i] +']"]').val();
+                        if(isNaN(parseInt(arrFormul[i]))){
+                            return false
+                        }
+                        else arrFormul[i] = parseInt(arrFormul[i]);
                         formulValue = formulValue + arrFormul[i];
                     }
                 }
@@ -39,7 +43,7 @@ define(['jquery', './widgetHelpers.js', "./widgetSettings.js"], function ($, wid
             var arrFormul;
 
             for(key in formuls){
-                var id = formuls[key].codeField
+                var id = formuls[key].codeField;
                 arrFormul = widgetHelpers.parseFormulId(formuls[key].formul);
                 for(i=0; i<arrFormul.length; i++){
                     if(arrFormul[i].length > 1){

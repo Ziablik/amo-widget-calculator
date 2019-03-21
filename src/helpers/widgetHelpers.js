@@ -7,7 +7,7 @@ define(['jquery'], function ($) {
             //Берет только поля типа число
             var fields = AMOCRM.constant('account').cf;
             for (key in fields) {
-                if(fields[key].TYPE_ID === '2'){
+                if(fields[key].TYPE_ID === '2' || fields[key].TYPE_ID === '1' || fields[key].TYPE_ID === '9'){
                     fieldsNames.push({option: fields[key].NAME, id: fields[key].ID});
                 }
             }
