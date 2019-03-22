@@ -53,7 +53,8 @@ define(['jquery',
                 var html = data.render({
                     fieldsNames
                 });
-                workArea.append(html)
+                workArea.append(html);
+                widgetHelpers.createAutoComplete($('#formulaField'));
             });
             console.log(fieldsNames);
 
@@ -63,26 +64,6 @@ define(['jquery',
                 formulaInput.val(formulaInput.val() + $(this).closest('tr').find('.control--select--list--item-selected span').text());
             });
 
-            var searchText = '';
-            
-            //Ивент вызывает список полей
-            $(document).on('keypress', '#formulaField', function (eventObject) {
-                if(eventObject.key === '@'){
-                    searchText = '';
-                    $(this).parent().find('ul').removeClass('control--select--list').addClass('control--select--list-opened')
-                }
-                else {
-                    searchText = searchText+eventObject.key;
-                    $(this).parent().find('span').each(function () {
-                        if($(this).text().toUpperCase().indexOf(searchText.toUpperCase()) === -1){
-                            $(this).parent().hide();
-                        }
-                        else $(this).parent().show();
-                    })
-                }
-            });
-
-            // Ивент сохранения формулы
             $(document).on('click', '#buttonSaveFormula', function () {
                 formulaInput = $('#formulaField');
                 errorText = $(this).closest('tbody').find('.errorText');
@@ -202,10 +183,12 @@ define(['jquery',
                             fieldsNames,
                             formul,
                             fieldName,
+                            key,
                             selectedField: {id: el.codeField, option: fieldName},
                         });
 
                         $('#work-area-' + wcode).append(html);
+                        widgetHelpers.createAutoComplete($('.table-'+key).find('#formul-info'))
                     });
                 });
 

@@ -3,7 +3,7 @@
     <button class="button-input spoiler-formula" type="button" style="background: rgba(0, 0, 0, 0) linear-gradient(rgb(252, 252, 252) 0%, rgb(248, 248, 249) 100%) repeat scroll 0% 0%; width: 100%; text-align: left;">
         {{ fieldName }}
     </button>
-    <table class="content__account__settings">
+    <table class="content__account__settings table-{{ key }}">
         <tbody id="table--formul">
             <tr>
                 <td class="content__account__settings__title" style="width: 25%">Имя поля</td>
@@ -12,7 +12,19 @@
             <tr>
                 <td class="content__account__settings__title" style="width: 25%">Формула</td>
                 <td class="content__account__settings__field">
-                    <input class="text-input" id="formul-info" value="{{ formul }}" type="text">
+                    <div class="control--select" style="">
+                        <input class="text-input" id="formul-info" value="{{ formul }}" type="text">
+                        <ul class="custom-scroll control--select--list searchScroll" style="width: auto;margin-top: 35px;margin-left: 15px;">
+                            {% for key in fieldsNames %}
+                                <li data-value="{{ key['id'] }}" class="control--select--list--item
+                                    {% if key['id'] == 'lead_card_budget' %} control--select--list--item-key_selected{% endif %}">
+                                        <span class="control--select--list--item-inner" title="{{ key['option'] }}">
+                                            {{ key['option'] }}
+                                        </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </td>
             </tr>
             <tr style="display: none">

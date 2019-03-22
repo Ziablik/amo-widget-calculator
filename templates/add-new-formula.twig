@@ -21,8 +21,8 @@
                 <td style="width: 14px; text-align: center; vertical-align: middle;">=</td>
                 <td style="width: 100%;">
                     <div class="control--select" style="">
-                        <input class="text-input" id="formulaField" style="width: 100%"/>
-                        <ul class="custom-scroll control--select--list" style="width: auto;margin-top: 35px;margin-left: 15px;">
+                        <input class="text-input" id="formulaField" style="width: 100%;"/>
+                        <ul class="custom-scroll control--select--list searchScroll" style="width: auto;margin-top: 35px;margin-left: 15px;">
                             {% for key in fieldsNames %}
                                 <li data-value="{{ key['id'] }}" class="control--select--list--item
                                 {% if key['id'] == 'lead_card_budget' %} control--select--list--item-key_selected{% endif %}">

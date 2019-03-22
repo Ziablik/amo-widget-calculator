@@ -196,6 +196,72 @@ define(['jquery'], function ($) {
                 }
             }
             return true
+        },
+
+        /**
+         * Метод создает ивент автокомплита для переданного инпута
+         * @param input
+         */
+        createAutoComplete: function(input){
+            var searchText = '';
+            input.parent().find('li').each(function () {
+                $(this).on('click', function (event) {
+                    input.val(widgetHelpers.searchChange(
+                            $(this).find('span').attr('title'),
+                            input.val()
+                        ))
+                })
+            });
+            input.on('keyup', function (event) {
+                if(event.key === 'Backspace'){
+                    searchText = searchText.slice(0, -1);
+                    $(this).parent().find('span').each(function () {
+                        if($(this).text().toUpperCase().indexOf(searchText.toUpperCase()) === -1){
+                            $(this).parent().hide();
+                        }
+                        else $(this).parent().show();
+                    })
+                }
+            });
+            input.on('keypress', function (event) {
+                if(event.key === '@'){
+                    if($(this).val().indexOf('@') === -1){
+                        $(this).parent().find('span').show();
+                        searchText = '';
+                        $(this).parent().find('ul').removeClass('control--select--list').addClass('control--select--list-opened')
+                    }
+                    else{
+                        $(this).val($(this).val().slice(0, -1))
+                    }
+                }
+                else {
+                    searchText = searchText+event.key;
+                    $(this).parent().find('span').each(function () {
+                        if($(this).text().toUpperCase().indexOf(searchText.toUpperCase()) === -1){
+                            $(this).parent().hide();
+                        }
+                        else $(this).parent().show();
+                    })
+                }
+            });
+        },
+
+        /**
+         * Метод ищет и заменяет @"Имя поля" -> "Имя поля"
+         * @param fieldName
+         * @param formula
+         * @return {string}
+         */
+        searchChange: function (fieldName, formula) {
+            var posStart = formula.indexOf('@');
+            var posEnd;
+            for(posEnd = posStart + 1; posEnd<formula.length; posEnd++){
+                if('()-+/*'.indexOf(formula[posEnd]) !== -1){
+                    break;
+                }
+            }
+            formula = formula.substr(0, posStart) + fieldName + formula.substr(posEnd);
+            return formula;
         }
     };
 
