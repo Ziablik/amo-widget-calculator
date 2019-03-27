@@ -56,7 +56,6 @@ define(['jquery',
                 workArea.append(html);
                 widgetHelpers.createAutoComplete($('#formulaField'));
             });
-            console.log(fieldsNames);
 
             // Ивент добавления поля в форму
             $(document).on('click', '#buttonAddFieldToFormula', function () {

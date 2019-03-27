@@ -43,6 +43,7 @@ define(['jquery'], function ($) {
         },
 
         set : function (data, wcode, id) {
+            console.log(id);
             try {
                 $.ajax({
                     url: '/ajax/widgets/edit',

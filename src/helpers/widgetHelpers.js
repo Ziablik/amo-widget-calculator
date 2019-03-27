@@ -226,12 +226,12 @@ define(['jquery'], function ($) {
             input.on('keypress', function (event) {
                 if(event.key === '@'){
                     if($(this).val().indexOf('@') === -1){
-                        $(this).parent().find('span').show();
                         searchText = '';
                         $(this).parent().find('ul').removeClass('control--select--list').addClass('control--select--list-opened')
                     }
                     else{
-                        $(this).val($(this).val().slice(0, -1))
+                        //Исправить
+                        $(this).val($(this).val().slice(0, -1));
                     }
                 }
                 else {
