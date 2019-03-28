@@ -225,10 +225,12 @@ define(['jquery'], function ($) {
                     $(this).parent().find('li[style = "display: list-item;"]:first').addClass('control--select--list--item-key_selected');
                 }
                 else if(event.key === 'Enter'){
-                    input.val(widgetHelpers.searchChange(
-                        $(this).parent().find('li.control--select--list--item-key_selected').find('span').attr('title'),
-                        input.val()
-                    ));
+                    if($(this).parent().find('li.control--select--list--item-key_selected').find('span').attr('title') !== undefined){
+                        input.val(widgetHelpers.searchChange(
+                            $(this).parent().find('li.control--select--list--item-key_selected').find('span').attr('title'),
+                            input.val()
+                        ));
+                    }
                 }
                 else if (event.key === 'ArrowDown'){
                     if($(this).parent().find('li.control--select--list--item-key_selected').next().is('li')){
@@ -253,9 +255,9 @@ define(['jquery'], function ($) {
                         $(this).parent().find('li:first').addClass('control--select--list--item-key_selected');
                     }
                     else{
-                        //Исправить
-                        var indexSymbol = $(this).val().indexOf('@');
-                        $(this).val($(this).val().slice(0, indexSymbol) + $(this).val().slice(indexSymbol+1));
+                        // var indexSymbol = $(this).val().indexOf('@');
+                        // $(this).val($(this).val().slice(0, indexSymbol) + $(this).val().slice(indexSymbol+1));
+                        return false;
                     }
                 }
                 else {
