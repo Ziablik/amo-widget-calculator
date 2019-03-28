@@ -24,8 +24,7 @@
                         <input class="text-input" id="formulaField" style="width: 100%;"/>
                         <ul class="custom-scroll control--select--list searchScroll" style="width: auto;margin-top: 35px;margin-left: 15px;">
                             {% for key in fieldsNames %}
-                                <li data-value="{{ key['id'] }}" class="control--select--list--item
-                                {% if key['id'] == 'lead_card_budget' %} control--select--list--item-key_selected{% endif %}">
+                                <li data-value="{{ key['id'] }}" class="control--select--list--item">
                                     <span class="control--select--list--item-inner" title="{{ key['option'] }}">
                                         {{ key['option'] }}
                                     </span>

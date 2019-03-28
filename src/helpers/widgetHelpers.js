@@ -205,14 +205,14 @@ define(['jquery'], function ($) {
         createAutoComplete: function(input){
             var searchText = '';
             input.parent().find('li').each(function () {
-                $(this).on('click', function (event) {
+                $(this).on('click', function () {
                     input.val(widgetHelpers.searchChange(
                             $(this).find('span').attr('title'),
                             input.val()
-                        ))
+                        ));
                 })
             });
-            input.on('keyup', function (event) {
+            input.on('keydown', function (event) {
                 if(event.key === 'Backspace'){
                     searchText = searchText.slice(0, -1);
                     $(this).parent().find('span').each(function () {
@@ -220,18 +220,42 @@ define(['jquery'], function ($) {
                             $(this).parent().hide();
                         }
                         else $(this).parent().show();
-                    })
+                    });
+                    $(this).parent().find('li').removeClass('control--select--list--item-key_selected');
+                    $(this).parent().find('li[style = "display: list-item;"]:first').addClass('control--select--list--item-key_selected');
+                }
+                else if(event.key === 'Enter'){
+                    input.val(widgetHelpers.searchChange(
+                        $(this).parent().find('li.control--select--list--item-key_selected').find('span').attr('title'),
+                        input.val()
+                    ));
+                }
+                else if (event.key === 'ArrowDown'){
+                    if($(this).parent().find('li.control--select--list--item-key_selected').next().is('li')){
+                        $(this).parent().find('li.control--select--list--item-key_selected').
+                        removeClass('control--select--list--item-key_selected').next('li').addClass('control--select--list--item-key_selected');
+                    }
+                }
+                else if (event.key === 'ArrowUp'){
+                    if($(this).parent().find('li.control--select--list--item-key_selected').prev().is('li')){
+                        $(this).parent().find('li.control--select--list--item-key_selected').
+                        removeClass('control--select--list--item-key_selected').prev('li').addClass('control--select--list--item-key_selected');
+                    }
                 }
             });
             input.on('keypress', function (event) {
                 if(event.key === '@'){
                     if($(this).val().indexOf('@') === -1){
                         searchText = '';
-                        $(this).parent().find('ul').removeClass('control--select--list').addClass('control--select--list-opened')
+                        $(this).parent().find('ul').removeClass('control--select--list').addClass('control--select--list-opened');
+                        $(this).parent().find('li').show();
+                        $(this).parent().find('li').removeClass('control--select--list--item-selected');
+                        $(this).parent().find('li:first').addClass('control--select--list--item-key_selected');
                     }
                     else{
                         //Исправить
-                        $(this).val($(this).val().slice(0, -1));
+                        var indexSymbol = $(this).val().indexOf('@');
+                        $(this).val($(this).val().slice(0, indexSymbol) + $(this).val().slice(indexSymbol+1));
                     }
                 }
                 else {
@@ -241,7 +265,9 @@ define(['jquery'], function ($) {
                             $(this).parent().hide();
                         }
                         else $(this).parent().show();
-                    })
+                    });
+                    $(this).parent().find('li').removeClass('control--select--list--item-key_selected');
+                    $(this).parent().find('li[style = "display: list-item;"]:first').addClass('control--select--list--item-key_selected');
                 }
             });
         },
