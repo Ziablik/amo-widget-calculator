@@ -3,9 +3,9 @@
     "name": "widget.name",
     "description": "widget.description",
     "short_description": "widget.short_description",
-    "code": "lastochka",
-    "secret_key": "f62941d16d8f11a0349e68e9af28cab513dc8b22353cb9b5d7660c8176cd474f",
-    "version": "1.0.13",
+    "code": "amo_widget_calculator",
+    "secret_key": "abbf78cebb71f1b14de33c1b80f2585dda023c73f8892a6a50fa8eb7825ff0cb",
+    "version": "1.0.1",
     "interface_version": 2,
     "init_once": true,
     "locale":[
