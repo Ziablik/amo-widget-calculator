@@ -26,7 +26,7 @@
     "gulp-watch": "^5.0.0",
     "gulp-zip": "^4.1.0",
     "jquery": "^3.2.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.12.1"
   },
   "dependencies": {
     "fs": "^0.0.1-security",
